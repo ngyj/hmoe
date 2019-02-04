@@ -1,3 +1,4 @@
 .ghci
 .ghc.env*
 dist*/
+log/

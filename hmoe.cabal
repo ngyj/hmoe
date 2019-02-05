@@ -25,7 +25,7 @@ Executable hmoe
   main-is: Main.hs
   other-modules: Site
                , Application
-               , Moe.Core
+               , Moe.Api
                , Moe.Img
                , Moe.InfoParser
 

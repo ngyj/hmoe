@@ -14,7 +14,7 @@ import           Snap.Snaplet
 import           Snap.Util.FileServe (serveDirectory)
 
 import           Application
-import           Moe.Core (moeInit)
+import           Moe.Api (moeInit)
 
 handleFoo :: Handler App App ()
 handleFoo = do

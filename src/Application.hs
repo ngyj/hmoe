@@ -9,7 +9,7 @@ module Application where
 import Control.Lens
 import Snap.Snaplet
 
-import Moe.Core (Moe)
+import Moe.Api (Moe)
 ------------------------------------------------------------------------------
 data App = App
     { _moe   :: Snaplet Moe

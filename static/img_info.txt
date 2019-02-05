@@ -1,0 +1,19 @@
+[haskell01.png]
+  category: tan
+source: https://www.pixiv.net/member_illust.php?mode=medium&illust_id=47784511
+  tags: chomado,original
+
+[ haskell03.png  ]
+category:   book
+source   : https://anilist.co/anime/16732/Kiniro-Mosaic
+  tags : karen  ,kiniro_mosaic,hpffp
+
+[haskell04.png]
+category: tan
+tags: unkown,original
+wp : true
+
+[haskell05.png]
+  category: book
+  source : https://i.ytimg.com/vi/cMF53nDuK-U/maxresdefault.jpg
+  tags: gabriel,  gabriel_dropout,hpffp

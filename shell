@@ -1,1 +1,0 @@
-nix-shell -p "haskell.packages.ghc844.ghcWithPackages (pkgs: with pkgs; [ zlib ])"

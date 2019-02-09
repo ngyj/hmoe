@@ -67,7 +67,7 @@ tagP :: Parser PType
 tagP = kvPairP (string "tags") $
        Tag . splitTags <$> takeText
   where
-    splitTags = filter (not . T.null) . map strip . splitOn "," . strip . traceShowId
+    splitTags = filter (not . T.null) . map strip . splitOn "," . strip
 
 wpP :: Parser PType
 wpP = kvPairP (string "wp" <|> string "wallpaper") $

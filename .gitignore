@@ -2,3 +2,4 @@
 .ghc.env*
 dist*/
 log/
+elm-stuff

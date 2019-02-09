@@ -3,8 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <title>Moe Moe Kyunnn~</title>
+  <link rel="stylesheet" href="styles/main.css">
+  <script src="main.js"></script>
 </head>
 <body>
-  <h1>Hello!</h1>
+  <div id="elm-node"></div>
+  <script>
+    var app = Elm.Main.init({
+      node: document.getElementById('elm-node')
+    });
+  </script>
 </body>
 </html>

@@ -1,11 +1,12 @@
 {-# language LambdaCase #-}
 module Moe.InfoParser where
 
-import Debug.Trace (trace, traceShowId)
+import Debug.Trace (trace)
 import Prelude hiding (takeWhile)
 
 import Control.Applicative (liftA2, (<|>))
 import Data.Attoparsec.Text
+import Data.Functor (($>))
 import Data.Text as T (Text, strip, splitOn, null)
 
 import Moe.Img
@@ -46,18 +47,19 @@ foldImg = \case
 
 ptypeP :: Parser PType
 ptypeP = choice [fnP, srcP, catP, tagP, wpP]
+-- TODO parser -> (fnP, choice [srcP, catP, tageP, wpP])
 
--- PERFORMANCE profile and determine wheter @. trim <$>@ is faster than @skipSpace@ everyhwere
 fnP :: Parser PType
-fnP = Fn <$>
-  (skipSpace *> char '[' *> skipSpace
-  *> takeWhile (not . isHorizontalSpace <&&> (/=']'))
-  <* skipSpace <* char ']')
+fnP = do
+  skipSpace
+  char '[' *> skipSpace
+  fn <- takeWhile (not . isHorizontalSpace <&&> (/=']'))
+  skipSpace <* char ']'
+  return $ Fn fn
 
 srcP :: Parser PType
 srcP = kvPairP (string "source" <|> string "src") $
        Src <$> takeWhile (not . isHorizontalSpace)
-
 
 catP :: Parser PType
 catP = kvPairP (string "category" <|> string "cat") $
@@ -69,17 +71,19 @@ tagP = kvPairP (string "tags") $
   where
     splitTags = filter (not . T.null) . map strip . splitOn "," . strip
 
+-- TODO make splitTags a parser that can eat newlines
+
 wpP :: Parser PType
 wpP = kvPairP (string "wp" <|> string "wallpaper") $
       Wp <$> boolP
 
 boolP :: Parser Bool
-boolP = (asciiCI "true" *> pure True)
-        <|> (asciiCI "false" *> pure False)
+boolP = (asciiCI "true" $> True)
+        <|> (asciiCI "false" $> False)
 
 kvPairP :: Parser Text -> Parser PType -> Parser PType
 kvPairP keyP valueP = skipSpace
   *> keyP
-  *> skipSpace *> char ':'
+  *> skipSpace *> char '='
   *> skipSpace
   *> valueP

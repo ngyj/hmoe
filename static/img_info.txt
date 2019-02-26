@@ -1,100 +1,100 @@
 [haskell01.png]
-  category: tan
-  source: https://www.pixiv.net/member_illust.php?mode=medium&illust_id=47784511
-  tags: chomado,original
+  category= tan
+  source= https://www.pixiv.net/member_illust.php?mode=medium&illust_id=47784511
+  tags= chomado,original
 
 [haskell03.png]
-  category:   book
-  source: https://trace.moe/?url=http://cdn-ak.f.st-hatena.com/images/fotolife/a/ahe_poke/20131126/20131126161420.jpg
-  tags: karen,kiniro_mosaic,hpffp,screenshot
+  category=   book
+  source= https://trace.moe/?url=http://cdn-ak.f.st-hatena.com/images/fotolife/a/ahe_poke/20131126/20131126161420.jpg
+  tags= karen,kiniro_mosaic,hpffp,screenshot
 
 [haskell04.png]
-  category: tan
-  tags: unkown,original
+  category= tan
+  tags= unkown,original
 
 [haskell05.png]
-  category: book
-  source: https://trace.moe/?url=https://i.ytimg.com/vi/cMF53nDuK-U/maxresdefault.jpg
-  tags: gabriel_dropout,hpffp,screenshot
+  category= book
+  source= https://trace.moe/?url=https://i.ytimg.com/vi/cMF53nDuK-U/maxresdefault.jpg
+  tags= gabriel_dropout,hpffp,screenshot
 
 [haskell06.png]
-  cat: book
-  src: https://www.pixiv.net/member_illust.php?mode=medium&illust_id=62632457
-  tags: tiddie_monster,idolmaster,sagisawa_fumika,hpffp,hplay
+  cat= book
+  src= https://www.pixiv.net/member_illust.php?mode=medium&illust_id=62632457
+  tags= tiddie_monster,idolmaster,sagisawa_fumika,hpffp,hplay
 
 [haskell07.png]
-  cat: book
-  src: https://www.pixiv.net/member_illust.php?mode=medium&illust_id=57608102
-  tags: idolmaster,sagisawa_fumika,hpffp,azuuru
-  wp: true
+  cat= book
+  src= https://www.pixiv.net/member_illust.php?mode=medium&illust_id=57608102
+  tags= idolmaster,sagisawa_fumika,hpffp,azuuru
+  wp= true
 
 [haskell08.jpg]
-  cat: book
-  src: https://www.pixiv.net/member_illust.php?mode=medium&illust_id=54520130
-  tags: marisa_kirisame,hpffp,touhou,2hu
+  cat= book
+  src= https://www.pixiv.net/member_illust.php?mode=medium&illust_id=54520130
+  tags= marisa_kirisame,hpffp,touhou,2hu
 
 [haskell09.jpg]
-  cat: book
-  src: https://danbooru.donmai.us/posts/3268523
-  tags: hpffp,ooyodo,kancolle,kantai_collection,bunnysuit,bunny,oda_masaki,b-minor
+  cat= book
+  src= https://danbooru.donmai.us/posts/3268523
+  tags= hpffp,ooyodo,kancolle,kantai_collection,bunnysuit,bunny,oda_masaki,b-minor
 
 [haskell10.jpg]
-  cat: book
-  src: https://www.pixiv.net/member_illust.php?mode=medium&illust_id=49932985
-  tags: suzumiya_haruhi_no_yuutsu,nagato_yuki,hpffp,miruto_netsuki,shny,the_melancholy_of_haruhi_suzumiya
-  wp: true
+  cat= book
+  src= https://www.pixiv.net/member_illust.php?mode=medium&illust_id=49932985
+  tags= suzumiya_haruhi_no_yuutsu,nagato_yuki,hpffp,miruto_netsuki,shny,the_melancholy_of_haruhi_suzumiya
+  wp= true
 
 [haskell11.jpg]
-  cat: book
-  src: https://www.pixiv.net/member_illust.php?mode=medium&illust_id=65722860
-  tags: bural_chingu,ju_hyeon-mi,luke,dydansgur,hpffp,parconc,little_typer
+  cat= book
+  src= https://www.pixiv.net/member_illust.php?mode=medium&illust_id=65722860
+  tags= bural_chingu,ju_hyeon-mi,luke,dydansgur,hpffp,parconc,little_typer
 
 [haskell13.png]
-  cat: book
-  src: https://www.pixiv.net/member_illust.php?mode=medium&illust_id=69885084
-  tags: hpffp,granblue_fantasy,cagliostro,hinami
+  cat= book
+  src= https://www.pixiv.net/member_illust.php?mode=medium&illust_id=69885084
+  tags= hpffp,granblue_fantasy,cagliostro,hinami
 
 [haskell14.png]
-  cat: book
-  src: https://www.pixiv.net/member_illust.php?mode=medium&illust_id=70302399
-  tags: hpffp,kemono_friends,eurasian_eagle_owl,tadano_magu
+  cat= book
+  src= https://www.pixiv.net/member_illust.php?mode=medium&illust_id=70302399
+  tags= hpffp,kemono_friends,eurasian_eagle_owl,tadano_magu
 
 [haskell15.jpg]
-  cat: book
-  src: trace.moe
-  tags: hpffp,chinatsu_kuramoto,flying_witch,screenshot
+  cat= book
+  src= trace.moe
+  tags= hpffp,chinatsu_kuramoto,flying_witch,screenshot
 
 [haskell16.jpg]
-  cat: book
-  src: trace.moe
-  tags: hpffp,hakase_shinonome,nichijou,screenshot
+  cat= book
+  src= trace.moe
+  tags= hpffp,hakase_shinonome,nichijou,screenshot
 
 [haskell17.png]
-  cat: book
-  src: https://www.pixiv.net/member_illust.php?mode=medium&illust_id=64943368
-  tags: hpffp,sakais3211,meteora_osterreich,re:creators
+  cat= book
+  src= https://www.pixiv.net/member_illust.php?mode=medium&illust_id=64943368
+  tags= hpffp,sakais3211,meteora_osterreich,re:creators
 
 [haskell18.jpg]
-  cat: book
-  src: https://www.pixiv.net/member_illust.php?mode=medium&illust_id=53739595
-  tags: hpffp,ooyodo,kancolle,kantai_collection,rinarisa
+  cat= book
+  src= https://www.pixiv.net/member_illust.php?mode=medium&illust_id=53739595
+  tags= hpffp,ooyodo,kancolle,kantai_collection,rinarisa
 
 [haskell19.png]
-  cat: book
-  src: https://www.pixiv.net/member_illust.php?mode=medium&illust_id=49916408
-  tags: hpffp,ooyodo,kancolle,kantai_collection,yuragi_sdmzonari
+  cat= book
+  src= https://www.pixiv.net/member_illust.php?mode=medium&illust_id=49916408
+  tags= hpffp,ooyodo,kancolle,kantai_collection,yuragi_sdmzonari
 
 [haskell20.jpg]
-  cat: book
-  src: https://www.pixiv.net/member_illust.php?mode=medium&illust_id=67236920
-  tags: hpffp,shima_rin,shimarin,yurucamp,tree_bowbow
+  cat= book
+  src= https://www.pixiv.net/member_illust.php?mode=medium&illust_id=67236920
+  tags= hpffp,shima_rin,shimarin,yurucamp,tree_bowbow
 
 [haskell21.jpg]
-  cat: book
-  src: https://danbooru.donmai.us/posts/3314389
-  tags: hpffp,kancolle,kantai_collection,shimakaze,az_toride
+  cat= book
+  src= https://danbooru.donmai.us/posts/3314389
+  tags= hpffp,kancolle,kantai_collection,shimakaze,az_toride
 
 [haskell22.png]
-  cat: book
-  src: https://danbooru.donmai.us/posts/3251714
-  tags: hpffp,hott,couple,kancolle,kantai_collection,suzuya,admiral
+  cat= book
+  src= https://danbooru.donmai.us/posts/3251714
+  tags= hpffp,hott,couple,kancolle,kantai_collection,suzuya,admiral

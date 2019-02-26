@@ -52,10 +52,10 @@ ptypeP = choice [fnP, srcP, catP, tagP, wpP]
 fnP :: Parser PType
 fnP = do
   skipSpace
-  char '[' *> skipSpace
-  fn <- takeWhile (not . isHorizontalSpace <&&> (/=']'))
-  skipSpace <* char ']'
-  return $ Fn fn
+  _ <- char '['
+  fn <- takeWhile (/=']')
+  _ <- char ']'
+  return . Fn . strip $ fn
 
 srcP :: Parser PType
 srcP = kvPairP (string "source" <|> string "src") $
@@ -63,7 +63,7 @@ srcP = kvPairP (string "source" <|> string "src") $
 
 catP :: Parser PType
 catP = kvPairP (string "category" <|> string "cat") $
-       Cat <$> takeWhile (not . isHorizontalSpace)
+       Cat . strip <$> takeWhile (not . isHorizontalSpace)
 
 tagP :: Parser PType
 tagP = kvPairP (string "tags") $
@@ -72,6 +72,13 @@ tagP = kvPairP (string "tags") $
     splitTags = filter (not . T.null) . map strip . splitOn "," . strip
 
 -- TODO make splitTags a parser that can eat newlines
+commaP :: Parser [Text]
+commaP = many' cps
+  where
+    cps = do skipSpace
+             _ <- char ','
+             skipSpace
+             takeWhile (not . isHorizontalSpace)
 
 wpP :: Parser PType
 wpP = kvPairP (string "wp" <|> string "wallpaper") $

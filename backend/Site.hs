@@ -8,6 +8,8 @@ module Site
   ( app
   ) where
 
+import           Data.Maybe (fromMaybe)
+
 import           Data.ByteString (ByteString)
 import           Snap.Core
 import           Snap.Snaplet
@@ -19,7 +21,7 @@ import           Moe.Api (moeInit)
 handleFoo :: Handler App App ()
 handleFoo = do
   mid <- getParam "id"
-  writeBS $ maybe "foo" id mid
+  writeBS $ fromMaybe "foo" mid
 
 ------------------------------------------------------------------------------
 -- | The application's routes.

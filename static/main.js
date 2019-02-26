@@ -6102,7 +6102,7 @@ var author$project$Index$aimg = function (link) {
 				elm$html$Html$img,
 				_List_fromArray(
 					[
-						elm$html$Html$Attributes$src(link)
+						elm$html$Html$Attributes$src(link + '?thumbnail')
 					]),
 				_List_Nil)
 			]));
@@ -6116,7 +6116,7 @@ var author$project$Index$when = F2(
 	});
 var elm$html$Html$span = _VirtualDom_node('span');
 var author$project$Index$viewInfo = function (image) {
-	var wppath = 'img/wp/' + image.fn;
+	var wppath = 'moe/wp/' + image.fn;
 	return A2(
 		elm$html$Html$span,
 		_List_Nil,
@@ -6171,7 +6171,7 @@ var elm$html$Html$li = _VirtualDom_node('li');
 var elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
 var elm$html$Html$Attributes$style = elm$virtual_dom$VirtualDom$style;
 var author$project$Index$viewImage = function (image) {
-	var imgpath = 'img/' + image.fn;
+	var imgpath = 'moe/' + image.fn;
 	var cssDisplay = image.active ? 'initial' : 'none';
 	return A2(
 		elm$html$Html$li,

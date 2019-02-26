@@ -50,7 +50,7 @@ viewImages (cname, lname) is =
       ]
 
 viewImage image =
-  let imgpath = "img/" ++ image.fn
+  let imgpath = "moe/" ++ image.fn
       cssDisplay = if image.active then "initial" else "none"
   in
     li
@@ -63,7 +63,7 @@ viewImage image =
       ]
 
 viewInfo image =
-  let wppath  = "img/wp/" ++ image.fn
+  let wppath  = "moe/wp/" ++ image.fn
   in
     span [] <| List.concat
       [ case image.src of
@@ -78,7 +78,7 @@ viewInfo image =
 aimg : String -> Html msg
 aimg link =
     a [ href link, class "img-item"]
-        [ img [ src link ]
+        [ img [ src (link++"?thumbnail") ]
               []
         ]
 

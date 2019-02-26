@@ -10,6 +10,7 @@ Collection of haskell-related moe pics.
 * priority to pixiv, then booru, then twitter..
 
 # TODO
+* image ids instead of filenames
 * queries on tags
 * multi wp support (api call?)
 * auto-completion on tags (??)

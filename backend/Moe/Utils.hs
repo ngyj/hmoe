@@ -1,4 +1,5 @@
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE OverloadedStrings #-}
 module Moe.Utils where
 
 import           Control.Monad ((>=>))
@@ -7,6 +8,7 @@ import           Data.Maybe (listToMaybe, fromJust, fromMaybe)
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as B
 import qualified Data.ByteString.Lazy.Char8 as BL
+import           Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
 import           Snap.Core (MonadSnap, getRequest, rqParam)
@@ -26,6 +28,14 @@ unsafeGetParam s = head . fromJust . rqParam s <$> getRequest
 
 -- -----------------------------------------------------------------------------
 -- * Misc.
+
+-- |
+dropExt :: Text -> Text
+dropExt s = case T.breakOnEnd "." s of
+      ("", _) -> s
+      (".", _) -> s
+      (f, _) -> T.dropEnd 1 f
+
 -- | IsString-like with toString function instead
 class ToString a where
   toString :: a -> String

@@ -1,4 +1,5 @@
 {-# language LambdaCase #-}
+{-# LANGUAGE OverloadedStrings #-}
 module Moe.InfoParser where
 
 import Debug.Trace (trace)
@@ -7,9 +8,10 @@ import Prelude hiding (takeWhile)
 import Control.Applicative (liftA2, (<|>))
 import Data.Attoparsec.Text
 import Data.Functor (($>))
-import Data.Text as T (Text, strip, splitOn, null)
+import Data.Text as T (Text, strip, splitOn, null, lines, isPrefixOf)
 
 import Moe.Img
+import Moe.Utils (dropExt)
 
 infixr 3 <&&>
 (<&&>) :: (a -> Bool) -> (a -> Bool) -> a -> Bool
@@ -22,10 +24,14 @@ data PType = Fn Text
            | Wp Bool
            deriving (Eq, Show)
 
-parseLines :: [Text] -> [Img]
-parseLines = foldImg
-             . filter (/= Left "Failed reading: empty")
-             . map (parseOnly ptypeP)
+parseLines :: [Text] -> Text -> [Img]
+parseLines wps = map lookupWps . parseImgs
+  where
+    lookupWps i@Img{imFn=f} = i{imWp=filter (dropExt f `isPrefixOf`) wps}
+    parseImgs = foldImg
+                . filter (/= Left "Failed reading: empty")
+                . map (parseOnly ptypeP)
+                . T.lines
 
 -- REFACTOR Lenses and folds, please
 -- TODO log when overwriting field, report line numbers?
@@ -35,7 +41,7 @@ foldImg = \case
   (Right (Fn s):xs) -> go (defaultImg s) xs
   _ -> error "image_info format error: should start with a filename"
   where
-    defaultImg s = Img s Nothing Nothing [] False
+    defaultImg s = Img s Nothing Nothing [] []
     go acc [] = acc `seq` [acc]
     go _ (Left _:_) = trace "TODO logError" []
     go acc (Right x:xs) = case x of
@@ -43,7 +49,7 @@ foldImg = \case
       Cat s -> go acc{imCat=Just s} xs
       Src s -> go acc{imSrc=Just s} xs
       Tag s -> go acc{imTag=s} xs
-      Wp s -> go acc{imWp=s} xs
+      Wp _ -> go acc xs
 
 ptypeP :: Parser PType
 ptypeP = choice [fnP, srcP, catP, tagP, wpP]

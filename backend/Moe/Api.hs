@@ -1,5 +1,7 @@
 {-# LANGUAGE DoAndIfThenElse #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE OverloadedStrings #-}
 module Moe.Api where
 
 import           Control.Monad (unless, liftM2)
@@ -7,12 +9,12 @@ import           Control.Monad.IO.Class
 
 import           Data.Aeson (encode, ToJSON(..), (.=), object, pairs)
 import           Data.ByteString (ByteString)
-import qualified Data.Text as T (lines)
+import qualified Data.Text as T
 import qualified Data.Text.IO as T (readFile)
 import           Snap.Core hiding (Response)
 import           Snap.Snaplet
-import           Snap.Util.FileServe (serveFile)
-import           System.Directory (doesFileExist, getModificationTime)
+import           Snap.Util.FileServe (serveFile, serveDirectory)
+import           System.Directory (doesFileExist, getModificationTime, listDirectory)
 
 import           Moe.Img (Img, inImgDir, inThumbDir, mkThumbnail)
 import           Moe.InfoParser (parseLines)
@@ -22,6 +24,7 @@ data Moe = Moe
 
 moeRoutes :: [(ByteString, Handler a Moe ())]
 moeRoutes = [("status"   , method GET rOK)
+            ,("wp"       , serveDirectory $ inImgDir @String "/wp")
             ,("moelist"  , method GET rImgList)
             ,(":filename", method GET rImg)
             ,(""         , method GET rImgList)
@@ -34,7 +37,8 @@ rImgList :: Handler a Moe ()
 rImgList = do modifyResponse $ setHeader "content-type" "application/json"
               liftIO imgs >>= writeLBS . encode . OK
                 where
-                  imgs = parseLines . T.lines <$> T.readFile "static/img_info.txt"
+                  wps = map T.pack <$> listDirectory (inImgDir @String "wp")
+                  imgs = parseLines <$> wps <*> T.readFile "static/img_info.txt"
 
 notFound :: String
 notFound = "static/404.png"

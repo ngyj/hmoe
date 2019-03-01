@@ -4982,7 +4982,6 @@ var author$project$Image$Image = F6(
 	function (fn, cat, src, tags, wp, active) {
 		return {active: active, cat: cat, fn: fn, src: src, tags: tags, wp: wp};
 	});
-var elm$json$Json$Decode$bool = _Json_decodeBool;
 var elm$json$Json$Decode$list = _Json_decodeList;
 var elm$json$Json$Decode$map = _Json_map1;
 var elm$json$Json$Decode$null = _Json_decodeNull;
@@ -5002,7 +5001,7 @@ var author$project$Image$imgDecoder = A2(
 	A3(
 		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
 		'imWp',
-		elm$json$Json$Decode$bool,
+		elm$json$Json$Decode$list(elm$json$Json$Decode$string),
 		A3(
 			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
 			'imTag',
@@ -6114,9 +6113,43 @@ var author$project$Index$when = F2(
 	function (p, m) {
 		return p ? m : author$project$Index$empty;
 	});
+var elm$core$Basics$composeL = F3(
+	function (g, f, x) {
+		return g(
+			f(x));
+	});
+var elm$core$Basics$not = _Basics_not;
+var elm$core$List$head = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return elm$core$Maybe$Just(x);
+	} else {
+		return elm$core$Maybe$Nothing;
+	}
+};
+var elm$core$List$isEmpty = function (xs) {
+	if (!xs.b) {
+		return true;
+	} else {
+		return false;
+	}
+};
+var elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
 var elm$html$Html$span = _VirtualDom_node('span');
 var author$project$Index$viewInfo = function (image) {
-	var wppath = 'moe/wp/' + image.fn;
+	var wppath = function (p) {
+		return 'moe/wp/' + p;
+	};
+	var haswp = !elm$core$List$isEmpty(image.wp);
 	return A2(
 		elm$html$Html$span,
 		_List_Nil,
@@ -6141,7 +6174,7 @@ var author$project$Index$viewInfo = function (image) {
 									])),
 								A2(
 								author$project$Index$when,
-								image.wp,
+								haswp,
 								elm$html$Html$text(' - '))
 							]);
 					} else {
@@ -6152,12 +6185,18 @@ var author$project$Index$viewInfo = function (image) {
 					[
 						A2(
 						author$project$Index$when,
-						image.wp,
+						haswp,
 						A2(
 							elm$html$Html$a,
 							_List_fromArray(
 								[
-									elm$html$Html$Attributes$href(wppath)
+									A2(
+									elm$core$Basics$composeL,
+									A2(
+										elm$core$Basics$composeL,
+										A2(elm$core$Basics$composeL, elm$html$Html$Attributes$href, wppath),
+										elm$core$Maybe$withDefault('')),
+									elm$core$List$head)(image.wp)
 								]),
 							_List_fromArray(
 								[
@@ -6226,14 +6265,6 @@ var author$project$Index$viewImages = F2(
 					A2(elm$core$List$map, author$project$Index$viewImage, is))
 				]));
 	});
-var elm$core$Basics$not = _Basics_not;
-var elm$core$List$isEmpty = function (xs) {
-	if (!xs.b) {
-		return true;
-	} else {
-		return false;
-	}
-};
 var elm$virtual_dom$VirtualDom$lazy2 = _VirtualDom_lazy2;
 var elm$html$Html$Lazy$lazy2 = elm$virtual_dom$VirtualDom$lazy2;
 var author$project$Index$imgRoot = function (ls) {

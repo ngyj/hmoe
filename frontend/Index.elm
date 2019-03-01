@@ -63,16 +63,20 @@ viewImage image =
       ]
 
 viewInfo image =
-  let wppath  = "moe/wp/" ++ image.fn
+  let wppath p = "moe/wp/" ++ p
+      haswp = List.isEmpty image.wp |> not
   in
     span [] <| List.concat
       [ case image.src of
              Just s -> [a [href s]
                           [text "source"]
-                       , when image.wp (text " - ")
+                       , when haswp (text " - ")
                        ]
              Nothing -> []
-      , [ when image.wp (a [href wppath] [text "wp"]) ]
+      , [ when haswp <|
+            a [(href << wppath << Maybe.withDefault "" << List.head) image.wp]
+               [text "wp"]
+        ]
       ]
 
 aimg : String -> Html msg
@@ -84,6 +88,9 @@ aimg link =
 
 when : Bool -> Html a -> Html a
 when p m = if p then m else empty
+
+unless : Bool -> Html a -> Html a
+unless = when << not
 
 empty : Html a
 empty = text ""

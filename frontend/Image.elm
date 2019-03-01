@@ -8,7 +8,7 @@ type alias Image =
   , cat : Maybe String
   , src : Maybe String
   , tags : List String
-  , wp  : Bool
+  , wp  : List String
   , active : Bool
   }
 
@@ -16,15 +16,15 @@ imgSample = [ { fn ="haskell01.png"
               , cat = Just "tan"
               , src = Just "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=47784511"
               , tags = [ "chomado","original" ]
-              , wp = False }
+              , wp = [] }
             , { fn ="haskell03.png"
               , cat = Just "book"
               , src   = Nothing
               , tags = [ "karen","kiniro_mosaic","hpffp" ]
-              , wp = True }
+              , wp = ["foobar"] }
             ]
 
-foo = { fn = "", cat = Nothing, src = Nothing, tags = [], wp = False }
+foo = { fn = "", cat = Nothing, src = Nothing, tags = [], wp = [] }
 
 moeDecoder : Decoder (List Image)
 moeDecoder = field "data" (list imgDecoder)
@@ -35,5 +35,5 @@ imgDecoder = D.succeed Image
            |> required  "imCat" (nullable string)
            |> required  "imSrc" (nullable string) -- fallback on image.google.com ?
            |> required  "imTag" (list string)
-           |> required  "imWp" bool
+           |> required  "imWp"  (list string)
            |> hardcoded True

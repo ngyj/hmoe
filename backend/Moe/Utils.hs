@@ -1,6 +1,8 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE OverloadedStrings #-}
-module Moe.Utils where
+module Moe.Utils ( module Moe.Utils
+                 , Trie
+                 )where
 
 import           Control.Monad ((>=>))
 import           Data.Maybe (listToMaybe, fromJust, fromMaybe)
@@ -12,6 +14,7 @@ import           Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
 import           Snap.Core (MonadSnap, getRequest, rqParam)
+import           Data.Trie (fromList, Trie, submap, elems)
 
 -- * Snap
 -- | get the Parameter the head of parameter's values from the Request in the monad
@@ -28,8 +31,16 @@ unsafeGetParam s = head . fromJust . rqParam s <$> getRequest
 
 -- -----------------------------------------------------------------------------
 -- * Misc.
+-- | build the trie from a @[String]@
+mkTrie :: (String -> a) -> [String] -> Trie a
+mkTrie f = fromList . map (\s -> (B.pack s, f s))
 
--- |
+-- | get all elements matching the prefix
+prefixes :: ByteString -> Trie a -> [a]
+prefixes s = elems . submap s
+
+-- FIXME match on list of known extensions?
+-- | get the filename without the extension
 dropExt :: Text -> Text
 dropExt s = case T.breakOnEnd "." s of
       ("", _) -> s

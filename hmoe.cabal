@@ -42,6 +42,7 @@ library
                , snap-loader-static        >= 1.0     && < 1.1
                , snap-server               >= 1.0     && < 1.2
                , text                      >= 0.11    && < 1.3
+               , bytestring-trie
 
 test-suite hmoe-test
   type: exitcode-stdio-1.0

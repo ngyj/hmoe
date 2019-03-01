@@ -1,5 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE OverloadedStrings #-}
 module Moe.Img where
 
 import Control.Applicative ((<*))
@@ -19,13 +20,13 @@ data Img = Img
   , imCat :: Maybe Text -- ^ image category
   , imSrc :: Maybe Text -- ^ image original source
   , imTag :: [Text] -- ^ image keywords/tags
-  , imWp  :: Bool -- ^ wallpaper sized image in img/wp/{imFn} ?
+  , imWp  :: [Text] -- ^ wallpaper sized image in img/wp/{imFn} ?
   } deriving (Generic, Show, Eq)
 
 instance ToJSON Img
 
 imgSample :: [Img]
-imgSample = [Img "foo.png" (Just "tan") Nothing [] False]
+imgSample = [Img "foo.png" (Just "tan") Nothing [] []]
 
 maxTWidth :: Int
 maxTWidth = 300

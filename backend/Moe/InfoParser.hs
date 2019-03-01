@@ -2,16 +2,18 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Moe.InfoParser where
 
-import Debug.Trace (trace)
 import Prelude hiding (takeWhile)
 
 import Control.Applicative (liftA2, (<|>))
-import Data.Attoparsec.Text
 import Data.Functor (($>))
-import Data.Text as T (Text, strip, splitOn, null, lines, isPrefixOf)
+import Data.Text as T (Text, strip, splitOn, null, lines)
+import Data.Text.Encoding (encodeUtf8)
+import Debug.Trace (trace)
+
+import Data.Attoparsec.Text
 
 import Moe.Img
-import Moe.Utils (dropExt)
+import Moe.Utils (dropExt, Trie, prefixes)
 
 infixr 3 <&&>
 (<&&>) :: (a -> Bool) -> (a -> Bool) -> a -> Bool
@@ -24,10 +26,10 @@ data PType = Fn Text
            | Wp Bool
            deriving (Eq, Show)
 
-parseLines :: [Text] -> Text -> [Img]
+parseLines :: Trie Text -> Text -> [Img]
 parseLines wps = map lookupWps . parseImgs
   where
-    lookupWps i@Img{imFn=f} = i{imWp=filter (dropExt f `isPrefixOf`) wps}
+    lookupWps i@Img{imFn=f} = i{imWp = prefixes (encodeUtf8 $ dropExt f) wps}
     parseImgs = foldImg
                 . filter (/= Left "Failed reading: empty")
                 . map (parseOnly ptypeP)

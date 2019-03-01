@@ -18,7 +18,7 @@ import           System.Directory (doesFileExist, getModificationTime, listDirec
 
 import           Moe.Img (Img, inImgDir, inThumbDir, mkThumbnail)
 import           Moe.InfoParser (parseLines)
-import           Moe.Utils (unsafeGetParam)
+import           Moe.Utils (unsafeGetParam, mkTrie)
 
 data Moe = Moe
 
@@ -37,7 +37,7 @@ rImgList :: Handler a Moe ()
 rImgList = do modifyResponse $ setHeader "content-type" "application/json"
               liftIO imgs >>= writeLBS . encode . OK
                 where
-                  wps = map T.pack <$> listDirectory (inImgDir @String "wp")
+                  wps = mkTrie T.pack <$> listDirectory (inImgDir @String "wp")
                   imgs = parseLines <$> wps <*> T.readFile "static/img_info.txt"
 
 notFound :: String

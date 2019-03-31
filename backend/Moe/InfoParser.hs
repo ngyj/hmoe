@@ -57,6 +57,10 @@ ptypeP :: Parser PType
 ptypeP = choice [fnP, srcP, catP, tagP, wpP]
 -- TODO parser -> (fnP, choice [srcP, catP, tageP, wpP])
 
+ptypeP' :: Parser (Text, [PType])
+ptypeP' = do (Fn fn) <- fnP
+             (,) fn <$> many' []
+
 fnP :: Parser PType
 fnP = do
   skipSpace

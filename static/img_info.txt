@@ -5,7 +5,7 @@
 
 [haskell03.png]
   category=   book
-  source= https://trace.moe/?url=http://cdn-ak.f.st-hatena.com/images/fotolife/a/ahe_poke/20131126/20131126161420.jpg
+  source= trace.moe
   tags= karen,kiniro_mosaic,hpffp,screenshot
 
 [haskell04.png]
@@ -14,7 +14,7 @@
 
 [haskell05.png]
   category= book
-  source= https://trace.moe/?url=https://i.ytimg.com/vi/cMF53nDuK-U/maxresdefault.jpg
+  source= trace.moe
   tags= gabriel_dropout,hpffp,screenshot
 
 [haskell06.png]

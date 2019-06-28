@@ -29,7 +29,7 @@ imgSample :: [Img]
 imgSample = [Img "foo.png" (Just "tan") Nothing [] []]
 
 maxTWidth :: Int
-maxTWidth = 150
+maxTWidth = 300
 
 writeThumb :: Image -> IO Image
 writeThumb src = do (w, h) <- imageSize src

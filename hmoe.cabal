@@ -1,10 +1,10 @@
 Name:                hmoe
 Version:             0.1
-Synopsis:            Project Synopsis Here
-Description:         Project Description Here
-License:             AllRightsReserved
-Author:              Author
-Maintainer:          maintainer@example.com
+Synopsis:            haskell.moe
+Description:         haskell.moe - Moe * Haskell
+License:             BSD3
+Author:              ngyj
+Maintainer:          ngyj@cinnabar.fr
 Stability:           Experimental
 Category:            Web
 Build-type:          Simple
@@ -27,6 +27,7 @@ library
                  , Moe.Img
                  , Moe.InfoParser
                  , Moe.Utils
+                 , Config
 
   Build-depends: base                      >= 4.4     && < 5
                , aeson

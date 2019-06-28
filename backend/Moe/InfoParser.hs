@@ -66,8 +66,8 @@ imageP = do (Fn fn) <- fnP
             fields <- many' $ choice [srcP, catP, tagP, wpP]
             eolof
             pure $ mkImg fn fields
--- ** field parsers
 
+-- ** field parsers
 fnP :: Parser PFilename
 fnP = do skipHSpace
          _ <- char '['

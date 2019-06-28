@@ -17,7 +17,7 @@ import           Snap.Util.FileServe (serveFile, serveDirectory)
 import           System.Directory (doesFileExist, getModificationTime, listDirectory)
 
 import           Moe.Img (Img, inImgDir, inThumbDir, mkThumbnail)
-import           Moe.InfoParser (parseLines)
+import           Moe.InfoParser (parseImages)
 import           Moe.Utils (unsafeGetParam, mkTrie)
 
 data Moe = Moe
@@ -38,7 +38,8 @@ rImgList = do modifyResponse $ setHeader "content-type" "application/json"
               liftIO imgs >>= writeLBS . encode . OK
                 where
                   wps = mkTrie T.pack <$> listDirectory (inImgDir @String "wp")
-                  imgs = parseLines <$> wps <*> T.readFile "static/img_info.txt"
+                  -- pass the walpaper with the file
+                  imgs = parseImages <$> wps <*> T.readFile "static/img_info.txt"
 
 notFound :: String
 notFound = "static/404.png"

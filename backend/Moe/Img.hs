@@ -14,7 +14,7 @@ import Graphics.GD
 
 import Moe.Utils
 
--- TODO imWp :: [Text] in case we have more than one wp?
+-- | Image datatype
 data Img = Img
   { imFn  :: Text -- ^ image filename
   , imCat :: Maybe Text -- ^ image category

@@ -14,7 +14,7 @@ import Graphics.GD
 
 import Moe.Utils
 
--- TODO imWp :: [Text] in case we have more than one wp?
+-- | Image datatype
 data Img = Img
   { imFn  :: Text -- ^ image filename
   , imCat :: Maybe Text -- ^ image category
@@ -29,7 +29,7 @@ imgSample :: [Img]
 imgSample = [Img "foo.png" (Just "tan") Nothing [] []]
 
 maxTWidth :: Int
-maxTWidth = 150
+maxTWidth = 300
 
 writeThumb :: Image -> IO Image
 writeThumb src = do (w, h) <- imageSize src

@@ -4,8 +4,8 @@
   tags= chomado,original
 
 [haskell03.png]
-  category=   book
-  source= https://trace.moe/?url=http://cdn-ak.f.st-hatena.com/images/fotolife/a/ahe_poke/20131126/20131126161420.jpg
+  category= book
+  source= trace.moe
   tags= karen,kiniro_mosaic,hpffp,screenshot
 
 [haskell04.png]
@@ -14,7 +14,7 @@
 
 [haskell05.png]
   category= book
-  source= https://trace.moe/?url=https://i.ytimg.com/vi/cMF53nDuK-U/maxresdefault.jpg
+  source= trace.moe
   tags= gabriel_dropout,hpffp,screenshot
 
 [haskell06.png]
@@ -98,3 +98,13 @@
   cat= book
   src= https://danbooru.donmai.us/posts/3251714
   tags= hpffp,hott,couple,kancolle,kantai_collection,suzuya,admiral
+
+[haskell23.png]
+  cat= book
+  src= https://trace.moe/?auto&url=https://i.imgur.com/tK2mjaD.jpg
+  tags= hpffp,non_non_biyori,renchon,renge_miyauchi
+
+[Menhera_LYAHFGG.png]
+  cat= book
+  src= https://stickersfordiscord.com/pack/mchan
+  tags= lyah,menhera-chan,LINE_stickers

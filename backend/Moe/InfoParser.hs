@@ -7,16 +7,19 @@ import           Prelude hiding (takeWhile)
 
 import           Control.Applicative (liftA2, (<|>), optional)
 import           Data.Either (fromRight)
+import           Data.Foldable (foldl')
 import           Data.Functor (($>))
 import           Data.Text as T (Text, strip, splitOn, null, lines, unpack, pack)
 import           Data.Text.Encoding (encodeUtf8)
 import           Debug.Trace (trace)
 
 import           Data.Attoparsec.Text
+import qualified Network.URI.Encode as Uri
 
 import           Moe.Img
 import           Moe.Utils (dropExt, Trie, prefixes)
-import qualified Config
+import           Config (SrcServ(..))
+import qualified Config as Cfg
 
 infixr 3 <&&>
 (<&&>) :: (a -> Bool) -> (a -> Bool) -> a -> Bool
@@ -31,40 +34,42 @@ data PField = Cat Text
             | Wp Bool
             deriving (Eq, Show)
 
-data PSrcToken = Trace | Iqdb deriving (Eq, Show)
+-- Currently the required tokens are the same as the SrcServ types
+type PSrcToken = SrcServ
 
+-- TODO log error if parseImgs failed
 -- | parse text from File
 parseImages :: Trie Text -> Text -> [Img]
-parseImages wps = map lookupWps . parseImgs
+parseImages wps = map lookupWps . parseI
   where
     lookupWps i@Img{imFn=f} = i{imWp = prefixes (encodeUtf8 $ dropExt f) wps}
-    parseImgs = fromRight [] . parseOnly (many' imageP)
+    parseI = fromRight [] . parseOnly imageListP
 
--- REFACTOR Lenses and folds, please
+imageListP:: Parser [Img]
+imageListP = many' imageP
+
 -- TODO log when overwriting field, report line numbers?
+-- SPEED use something other than linked lists for the fields?
 -- | the @Img@ type builder
 mkImg :: Text -> [PField] -> Img
-mkImg fn = go (defaultImg fn)
+mkImg fn = foldl' addField defaultImg
   where
-    defaultImg s = Img s Nothing Nothing [] []
-    url = T.pack Config.host <> "moe/" <> fn
-    escape = id
+    defaultImg = Img fn Nothing Nothing [] []
+    url = T.pack Cfg.host <> "moe/" <> fn
+    escape = Uri.encodeText
 
-    go acc [] = acc
-    go acc (x:xs) = case x of
-      Cat s -> go acc{imCat=Just s} xs
-      Src (Left s) -> go acc{imSrc=Just s} xs
-      Src (Right Trace) -> go acc{imSrc=Just ("https://trace.moe/?auto&url=" <> escape fn)} xs
-      Src (Right Iqdb) -> go acc{imSrc=Just ("https://iqdb.org/?url=" <> escape fn)} xs
-      Tag s -> go acc{imTag=s} xs
-      Wp _ -> go acc xs
--- error "image_info format error: should start with a filename"
+    addField acc field = case field of
+      Cat s -> acc{imCat=Just s}
+      Src (Left s) -> acc{imSrc=Just s}
+      Src (Right tok) -> acc{imSrc=Just (Cfg.srcServUrl tok <> escape fn)}
+      Tag s -> acc{imTag=s}
+      Wp _ -> acc
 
 -- | the one image Parser
 imageP :: Parser Img
 imageP = do (Fn fn) <- fnP
             fields <- many' $ choice [srcP, catP, tagP, wpP]
-            eolof
+            optional eolof
             pure $ mkImg fn fields
 
 -- ** field parsers
@@ -77,30 +82,31 @@ fnP = do skipHSpace
       <?> "filename"
 
 srcP :: Parser PField
-srcP = kvPairP (string "source" <|> string "src")
-               (Src <$> ((try keywords <* endOfField) <|> Left <$> other))
+srcP = Src
+       <$> kvPairP (string "source" <|> string "src")
+                   (  Right <$> (try tokens <* endOfField)
+                   <|> Left <$> (takeTill isEndOfWord <* endOfField))
        <?> "source"
   where
-    keywords = Right <$> do Trace <$ string "trace" <* optional (string ".moe")
-                              <|> Iqdb <$ string "iqdb.org"
-    other = takeWhile (not . isEndOfWord) <* endOfField
+    tokens = Trace <$ string "trace" <* optional (string ".moe")
+               <|> Iqdb <$ string "iqdb.org"
 
 catP :: Parser PField
-catP = kvPairP (string "category" <|> string "cat")
-               (Cat . strip <$> takeTill isEndOfWord <* endOfField)
+catP = Cat . strip
+       <$> kvPairP (string "category" <|> string "cat")
+                   (takeTill isEndOfWord <* endOfField)
        <?> "category"
 
 tagP :: Parser PField
-tagP = kvPairP (string "tags")
-               (Tag <$> commaP)
+tagP = Tag
+       <$> kvPairP (string "tags")
+                   commaP
        <?> "tags"
-  where
-    -- REFACTOR delete this
-    splitTags = filter (not . T.null) . map strip . splitOn "," . strip
 
 wpP :: Parser PField
-wpP = kvPairP (string "wp" <|> string "wallpaper")
-              (Wp <$> boolP <* endOfField)
+wpP = Wp
+      <$> kvPairP (string "wp" <|> string "wallpaper")
+                  (boolP <* endOfField)
       <?> "wallpaper"
 
 -- ** helpers
@@ -110,7 +116,7 @@ boolP = (asciiCI "true" $> True)
         <?> "bool"
 
 -- | key value pair (separated by '=') parser
-kvPairP :: Parser Text -> Parser PField -> Parser PField
+kvPairP :: Parser Text -> Parser a -> Parser a
 kvPairP keyP valueP = skipVSpace
   *> keyP
   *> skipVSpace *> char '='
@@ -132,15 +138,18 @@ commaP = do x <- skipVSpace *> takeTill end <* skipHSpace
 isEndOfWord :: Char -> Bool
 isEndOfWord c = isHorizontalSpace c || isEndOfLine c
 
--- | end of line or file
+-- | End Of Line Or File
 eolof :: Parser ()
 eolof = endOfLine <|> endOfInput
 
+-- | skips horizontal space and eats EOL or EOF
 endOfField :: Parser ()
 endOfField = skipHSpace <* eolof
 
 -- | skip horizontal space
+skipHSpace :: Parser ()
 skipHSpace = skipWhile isHorizontalSpace
 
 -- | skip all whitespace (including newlines)
+skipVSpace :: Parser ()
 skipVSpace = skipSpace

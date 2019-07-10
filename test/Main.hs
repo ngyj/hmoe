@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Main where
 
-import Data.Either (isLeft)
+import Data.Either (isLeft, isRight, fromRight, fromLeft)
 
 import Test.Hspec
 
@@ -11,6 +11,7 @@ import Moe.Img (Img(..))
 
 main :: IO ()
 main = hspec $ do
+  -- REFACTOR separate module for backend & parse/utils/other
   describe "moe/utils" $ do
     describe "dropExt" dropExt_t
   describe "moe/infoparser" $ do
@@ -19,6 +20,8 @@ main = hspec $ do
     describe "wallpaper" wpP_t
     describe "filename" fnP_t
     describe "imageP" imP_t
+    describe "imageListP" imListP_t
+    -- TODO : wallpapers,
 
 dropExt_t = do
   it "normal" $ do
@@ -57,8 +60,15 @@ srcP_t = do
     parseOnly srcP "src = trace" `shouldBe` resR Trace
   it "iqdb" $ do
     parseOnly srcP "src = iqdb.org" `shouldBe` resR Iqdb
-  it "any/prefix" $ do
+  it "trace/prefix" $ do
     parseOnly srcP "src = traceaksldf" `shouldBe` resL "traceaksldf"
+  -- possible clash between key for parser and value
+  it "clash/source" $ do
+    parseOnly srcP "src = source" `shouldBe` resL "source"
+  it "clash/src" $ do
+    parseOnly srcP "src = src" `shouldBe` resL "src"
+  it "clash/src-post" $ do
+    parseOnly srcP "src = srcgarbage" `shouldBe` resL "srcgarbage"
   it "fail/prefix" $ do
     parseOnly srcP "src = iqdb.org adf" `shouldSatisfy` isLeft
   it "fail" $ do
@@ -94,25 +104,53 @@ wpP_t = do
   it "fail/1" $ do
     parseOnly wpP "wp = 1" `shouldSatisfy` isLeft
 
+img = Img{ imFn  = ""
+         , imCat = Nothing
+         , imSrc = Nothing
+         , imTag = []
+         , imWp  = []
+         }
+
 imP_t = do
-  let res = Right . Wp
   it "fn+src" $ do
-    parseOnly imageP "[foo.png]\n src=https://foo.png" `shouldBe` Right (Img{imFn="foo.png"
-                                                                            ,imCat=Nothing
-                                                                            ,imSrc=Just "https://foo.png"
-                                                                            ,imTag=[]
-                                                                            ,imWp =[]})
-  it "+cat" $ do
+    parseOnly imageP "[foo.png]\n src=https://foo.png" `shouldBe` Right img{imFn="foo.png"
+                                                                           ,imSrc=Just "https://foo.png"
+                                                                           }
+  it "^+cat" $ do
     parseOnly imageP "[foo.png]\n \nsrc=https://foo.png\n\ncat=bar"
-      `shouldBe` Right (Img{imFn="foo.png"
-                           ,imCat=Just "bar"
-                           ,imSrc=Just "https://foo.png"
-                           ,imTag=[]
-                           ,imWp =[]})
-  it "+cat" $ do
+      `shouldBe` Right img{imFn="foo.png"
+                          ,imCat=Just "bar"
+                          ,imSrc=Just "https://foo.png"
+                          }
+  it "^+tags" $ do
     parseOnly imageP "[foo.png]\n \nsrc=https://foo.png\n\ncat=bar\ntags=one,two,three"
-      `shouldBe` Right (Img{imFn="foo.png"
-                           ,imCat=Just "bar"
-                           ,imSrc=Just "https://foo.png"
-                           ,imTag=["one","two","three"]
-                           ,imWp =[]})
+      `shouldBe` Right img{imFn="foo.png"
+                          ,imCat=Just "bar"
+                          ,imSrc=Just "https://foo.png"
+                          ,imTag=["one","two","three"]
+                          }
+  it "dup_field" $ do
+    parseOnly imageP "[foo.png]\n cat=bar \n cat=baz \n"
+      `shouldBe` Right img{imFn="foo.png"
+                          ,imCat=Just "baz"
+                          }
+
+testT1 =  "[xxx.png]\nsrc=https://xxx.com\ncat=cat\ntags=one,two,three"
+testT2 =  "[yyy.png]\nsrc=https://yyy.net\nwp=true\ntags=four,five,six"
+testI = fromRight img . parseOnly imageP
+
+imListP_t = do
+  it "null" $ do
+    parseOnly (imageListP) "" `shouldBe` Right []
+  it "one" $ do
+    parseOnly (imageListP) testT1 `shouldBe` Right [testI testT1]
+  it "two" $ do
+    parseOnly (imageListP) (testT1<>"\n"<>testT2) `shouldBe` Right [testI testT1, testI testT2]
+  it "two_extra" $ do
+    parseOnly (imageListP) (testT1<>"\n\n"<>testT2) `shouldBe` Right [testI testT1, testI testT2]
+
+  it "fail/separation" $ do
+    parseOnly (imageListP) (testT1<>testT2) `shouldBe` Right [(testI testT2){imFn = imFn (testI testT1)
+                                                                            ,imCat = imCat (testI testT1)}]
+  it "fail/second" $ do
+    parseOnly (imageListP) (testT1<>"\n[as\n"<>testT2) `shouldBe` Right [testI testT1]

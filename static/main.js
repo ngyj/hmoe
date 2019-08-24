@@ -5916,6 +5916,10 @@ var author$project$Main$Failure = function (a) {
 var author$project$Main$ImList = function (a) {
 	return {$: 'ImList', a: a};
 };
+var author$project$Main$mkImList = function (imgs) {
+	return author$project$Main$ImList(
+		{get: imgs, modal: elm$core$Maybe$Nothing, show: imgs});
+};
 var elm$core$List$append = F2(
 	function (xs, ys) {
 		if (!ys.b) {
@@ -6017,39 +6021,42 @@ var elm$core$Platform$Cmd$batch = _Platform_batch;
 var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
 var author$project$Main$update = F2(
 	function (msg, model) {
-		if (msg.$ === 'GetMoe') {
-			var r = msg.a;
-			if (r.$ === 'Ok') {
-				var imgs = r.a;
-				var imgs_ = A2(elm$core$List$map, author$project$Query$expandTags, imgs);
-				return _Utils_Tuple2(
-					author$project$Main$ImList(
-						{get: imgs_, show: imgs_}),
-					elm$core$Platform$Cmd$none);
-			} else {
-				var e = r.a;
-				return _Utils_Tuple2(
-					author$project$Main$Failure(e),
-					elm$core$Platform$Cmd$none);
-			}
-		} else {
-			var s = msg.a;
-			if (model.$ === 'ImList') {
-				var r = model.a;
-				return _Utils_Tuple2(
-					author$project$Main$ImList(
-						_Utils_update(
-							r,
-							{
-								show: A2(author$project$Query$query, s, r.get)
-							})),
-					elm$core$Platform$Cmd$none);
-			} else {
-				return A2(
-					elm$core$Debug$log,
-					'Query: should not happen.',
-					_Utils_Tuple2(model, elm$core$Platform$Cmd$none));
-			}
+		switch (msg.$) {
+			case 'GetMoe':
+				var r = msg.a;
+				if (r.$ === 'Ok') {
+					var imgs = r.a;
+					var imgs_ = A2(elm$core$List$map, author$project$Query$expandTags, imgs);
+					return _Utils_Tuple2(
+						author$project$Main$mkImList(imgs_),
+						elm$core$Platform$Cmd$none);
+				} else {
+					var e = r.a;
+					return _Utils_Tuple2(
+						author$project$Main$Failure(e),
+						elm$core$Platform$Cmd$none);
+				}
+			case 'Query':
+				var s = msg.a;
+				if (model.$ === 'ImList') {
+					var r = model.a;
+					return _Utils_Tuple2(
+						author$project$Main$ImList(
+							_Utils_update(
+								r,
+								{
+									show: A2(author$project$Query$query, s, r.get)
+								})),
+						elm$core$Platform$Cmd$none);
+				} else {
+					return A2(
+						elm$core$Debug$log,
+						'Query: should not happen.',
+						_Utils_Tuple2(model, elm$core$Platform$Cmd$none));
+				}
+			default:
+				var s = msg.a;
+				return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
 		}
 	});
 var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {

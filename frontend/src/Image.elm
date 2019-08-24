@@ -12,19 +12,22 @@ type alias Image =
   , active : Bool
   }
 
+imgSample : List Image
 imgSample = [ { fn ="haskell01.png"
               , cat = Just "tan"
               , src = Just "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=47784511"
               , tags = [ "chomado","original" ]
-              , wp = [] }
+              , wp = []
+              , active = True }
             , { fn ="haskell03.png"
               , cat = Just "book"
               , src   = Nothing
               , tags = [ "karen","kiniro_mosaic","hpffp" ]
-              , wp = ["foobar"] }
+              , wp = ["foobar"]
+              , active = True }
             ]
-
-foo = { fn = "", cat = Nothing, src = Nothing, tags = [], wp = [] }
+foo : Image
+foo = { fn = "", cat = Nothing, src = Nothing, tags = [], wp = [], active=True}
 
 moeDecoder : Decoder (List Image)
 moeDecoder = field "data" (list imgDecoder)

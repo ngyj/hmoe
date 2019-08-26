@@ -4485,7 +4485,6 @@ function _Browser_load(url)
 		}
 	}));
 }
-var author$project$Main$Start = {$: 'Start'};
 var elm$core$Basics$apR = F2(
 	function (x, f) {
 		return f(x);
@@ -5023,7 +5022,7 @@ var author$project$Image$moeDecoder = A2(
 	elm$json$Json$Decode$field,
 	'data',
 	elm$json$Json$Decode$list(author$project$Image$imgDecoder));
-var author$project$Main$GetMoe = function (a) {
+var author$project$Model$GetMoe = function (a) {
 	return {$: 'GetMoe', a: a};
 };
 var elm$core$Result$mapError = F2(
@@ -5904,21 +5903,22 @@ var elm$http$Http$get = function (r) {
 };
 var author$project$Main$getMoe = elm$http$Http$get(
 	{
-		expect: A2(elm$http$Http$expectJson, author$project$Main$GetMoe, author$project$Image$moeDecoder),
+		expect: A2(elm$http$Http$expectJson, author$project$Model$GetMoe, author$project$Image$moeDecoder),
 		url: '/moe'
 	});
+var author$project$Model$Start = {$: 'Start'};
 var author$project$Main$init = function (_n0) {
-	return _Utils_Tuple2(author$project$Main$Start, author$project$Main$getMoe);
+	return _Utils_Tuple2(author$project$Model$Start, author$project$Main$getMoe);
 };
-var author$project$Main$Failure = function (a) {
+var author$project$Model$Failure = function (a) {
 	return {$: 'Failure', a: a};
 };
-var author$project$Main$ImList = function (a) {
+var author$project$Model$ImList = function (a) {
 	return {$: 'ImList', a: a};
 };
-var author$project$Main$mkImList = function (imgs) {
-	return author$project$Main$ImList(
-		{get: imgs, modal: elm$core$Maybe$Nothing, show: imgs});
+var author$project$Model$mkImList = function (is) {
+	return author$project$Model$ImList(
+		{focus: elm$core$Maybe$Nothing, get: is, show: is});
 };
 var elm$core$List$append = F2(
 	function (xs, ys) {
@@ -6021,19 +6021,32 @@ var elm$core$Platform$Cmd$batch = _Platform_batch;
 var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
 var author$project$Main$update = F2(
 	function (msg, model) {
+		var unfocus = function (m) {
+			return _Utils_update(
+				m,
+				{focus: elm$core$Maybe$Nothing});
+		};
+		var focus = F2(
+			function (i, m) {
+				return _Utils_update(
+					m,
+					{
+						focus: elm$core$Maybe$Just(i)
+					});
+			});
 		switch (msg.$) {
 			case 'GetMoe':
 				var r = msg.a;
 				if (r.$ === 'Ok') {
-					var imgs = r.a;
-					var imgs_ = A2(elm$core$List$map, author$project$Query$expandTags, imgs);
+					var is = r.a;
+					var imgs_ = A2(elm$core$List$map, author$project$Query$expandTags, is);
 					return _Utils_Tuple2(
-						author$project$Main$mkImList(imgs_),
+						author$project$Model$mkImList(imgs_),
 						elm$core$Platform$Cmd$none);
 				} else {
 					var e = r.a;
 					return _Utils_Tuple2(
-						author$project$Main$Failure(e),
+						author$project$Model$Failure(e),
 						elm$core$Platform$Cmd$none);
 				}
 			case 'Query':
@@ -6041,7 +6054,7 @@ var author$project$Main$update = F2(
 				if (model.$ === 'ImList') {
 					var r = model.a;
 					return _Utils_Tuple2(
-						author$project$Main$ImList(
+						author$project$Model$ImList(
 							_Utils_update(
 								r,
 								{
@@ -6051,12 +6064,36 @@ var author$project$Main$update = F2(
 				} else {
 					return A2(
 						elm$core$Debug$log,
-						'Query: should not happen.',
+						'Query: patmatch error in update.',
+						_Utils_Tuple2(model, elm$core$Platform$Cmd$none));
+				}
+			case 'Focus':
+				var i = msg.a;
+				if (model.$ === 'ImList') {
+					var r = model.a;
+					return _Utils_Tuple2(
+						author$project$Model$ImList(
+							A2(focus, i, r)),
+						elm$core$Platform$Cmd$none);
+				} else {
+					return A2(
+						elm$core$Debug$log,
+						'Focus: patmatch error in update.',
 						_Utils_Tuple2(model, elm$core$Platform$Cmd$none));
 				}
 			default:
-				var s = msg.a;
-				return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
+				if (model.$ === 'ImList') {
+					var r = model.a;
+					return _Utils_Tuple2(
+						author$project$Model$ImList(
+							unfocus(r)),
+						elm$core$Platform$Cmd$none);
+				} else {
+					return A2(
+						elm$core$Debug$log,
+						'Unfocus: patmatch error in update.',
+						_Utils_Tuple2(model, elm$core$Platform$Cmd$none));
+				}
 		}
 	});
 var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
@@ -6072,6 +6109,7 @@ var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
 	}
 };
 var elm$html$Html$a = _VirtualDom_node('a');
+var elm$html$Html$div = _VirtualDom_node('div');
 var elm$html$Html$img = _VirtualDom_node('img');
 var elm$json$Json$Encode$string = _Json_wrap;
 var elm$html$Html$Attributes$stringProperty = F2(
@@ -6094,7 +6132,131 @@ var elm$html$Html$Attributes$src = function (url) {
 		'src',
 		_VirtualDom_noJavaScriptOrHtmlUri(url));
 };
-var author$project$Index$aimg = function (link) {
+var author$project$Main$focused = function (fm) {
+	return A2(
+		elm$html$Html$div,
+		_List_fromArray(
+			[
+				elm$html$Html$Attributes$class('if-left')
+			]),
+		_List_fromArray(
+			[
+				A2(
+				elm$html$Html$div,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('if-image')
+					]),
+				_List_fromArray(
+					[
+						A2(
+						elm$html$Html$a,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$href(fm.head)
+							]),
+						_List_fromArray(
+							[
+								A2(
+								elm$html$Html$img,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$src(fm.head)
+									]),
+								_List_Nil)
+							]))
+					]))
+			]));
+};
+var author$project$Main$sideList = function (fm) {
+	var one = F2(
+		function (attr, url) {
+			return A2(
+				elm$html$Html$a,
+				_Utils_ap(
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('if-wps-img')
+						]),
+					attr),
+				_List_fromArray(
+					[
+						A2(
+						elm$html$Html$img,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$src(url)
+							]),
+						_List_Nil)
+					]));
+		});
+	return _Utils_ap(
+		A2(
+			elm$core$List$map,
+			one(_List_Nil),
+			fm.init),
+		_Utils_ap(
+			_List_fromArray(
+				[
+					A2(
+					one,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('if-wps-head')
+						]),
+					fm.head)
+				]),
+			A2(
+				elm$core$List$map,
+				one(_List_Nil),
+				fm.tail)));
+};
+var author$project$Model$Unfocus = {$: 'Unfocus'};
+var elm$html$Html$Attributes$id = elm$html$Html$Attributes$stringProperty('id');
+var elm$virtual_dom$VirtualDom$Normal = function (a) {
+	return {$: 'Normal', a: a};
+};
+var elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var elm$html$Html$Events$on = F2(
+	function (event, decoder) {
+		return A2(
+			elm$virtual_dom$VirtualDom$on,
+			event,
+			elm$virtual_dom$VirtualDom$Normal(decoder));
+	});
+var elm$html$Html$Events$onClick = function (msg) {
+	return A2(
+		elm$html$Html$Events$on,
+		'click',
+		elm$json$Json$Decode$succeed(msg));
+};
+var author$project$Main$viewFocus = function (fm) {
+	return A2(
+		elm$html$Html$div,
+		_List_fromArray(
+			[
+				elm$html$Html$Attributes$id('img-focus'),
+				elm$html$Html$Events$onClick(author$project$Model$Unfocus)
+			]),
+		_List_fromArray(
+			[
+				author$project$Main$focused(fm),
+				A2(
+				elm$html$Html$div,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('if-wps')
+					]),
+				author$project$Main$sideList(fm))
+			]));
+};
+var author$project$Image$imgpath = function (image) {
+	return 'moe/' + image.fn;
+};
+var author$project$Image$thumbnail = function (iname) {
+	return iname + '?thumbnail';
+};
+var author$project$Main$aimg = function (link) {
 	return A2(
 		elm$html$Html$a,
 		_List_fromArray(
@@ -6108,33 +6270,26 @@ var author$project$Index$aimg = function (link) {
 				elm$html$Html$img,
 				_List_fromArray(
 					[
-						elm$html$Html$Attributes$src(link + '?thumbnail')
+						elm$html$Html$Attributes$src(
+						author$project$Image$thumbnail(link))
 					]),
 				_List_Nil)
 			]));
 };
+var author$project$Image$wppath = function (wpname) {
+	return 'moe/wp/' + wpname;
+};
+var author$project$Model$Focus = function (a) {
+	return {$: 'Focus', a: a};
+};
 var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
-var author$project$Index$empty = elm$html$Html$text('');
-var author$project$Index$when = F2(
+var author$project$Utils$empty = elm$html$Html$text('');
+var author$project$Utils$when = F2(
 	function (p, m) {
-		return p ? m : author$project$Index$empty;
-	});
-var elm$core$Basics$composeL = F3(
-	function (g, f, x) {
-		return g(
-			f(x));
+		return p ? m : author$project$Utils$empty;
 	});
 var elm$core$Basics$not = _Basics_not;
-var elm$core$List$head = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return elm$core$Maybe$Just(x);
-	} else {
-		return elm$core$Maybe$Nothing;
-	}
-};
 var elm$core$List$isEmpty = function (xs) {
 	if (!xs.b) {
 		return true;
@@ -6142,21 +6297,30 @@ var elm$core$List$isEmpty = function (xs) {
 		return false;
 	}
 };
-var elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
-	});
 var elm$html$Html$span = _VirtualDom_node('span');
-var author$project$Index$viewInfo = function (image) {
-	var wppath = function (p) {
-		return 'moe/wp/' + p;
-	};
+var author$project$Main$viewInfo = function (image) {
 	var haswp = !elm$core$List$isEmpty(image.wp);
+	var fmod = function () {
+		var _n1 = image.wp;
+		if (!_n1.b) {
+			return {
+				head: author$project$Image$imgpath(image),
+				init: _List_Nil,
+				tail: _List_Nil
+			};
+		} else {
+			var x = _n1.a;
+			var xs = _n1.b;
+			return {
+				head: author$project$Image$wppath(x),
+				init: _List_fromArray(
+					[
+						author$project$Image$imgpath(image)
+					]),
+				tail: xs
+			};
+		}
+	}();
 	return A2(
 		elm$html$Html$span,
 		_List_Nil,
@@ -6180,7 +6344,7 @@ var author$project$Index$viewInfo = function (image) {
 										elm$html$Html$text('source')
 									])),
 								A2(
-								author$project$Index$when,
+								author$project$Utils$when,
 								haswp,
 								elm$html$Html$text(' - '))
 							]);
@@ -6191,19 +6355,15 @@ var author$project$Index$viewInfo = function (image) {
 					_List_fromArray(
 					[
 						A2(
-						author$project$Index$when,
+						author$project$Utils$when,
 						haswp,
 						A2(
 							elm$html$Html$a,
 							_List_fromArray(
 								[
-									A2(
-									elm$core$Basics$composeL,
-									A2(
-										elm$core$Basics$composeL,
-										A2(elm$core$Basics$composeL, elm$html$Html$Attributes$href, wppath),
-										elm$core$Maybe$withDefault('')),
-									elm$core$List$head)(image.wp)
+									elm$html$Html$Attributes$href('#'),
+									elm$html$Html$Events$onClick(
+									author$project$Model$Focus(fmod))
 								]),
 							_List_fromArray(
 								[
@@ -6212,12 +6372,10 @@ var author$project$Index$viewInfo = function (image) {
 					])
 				])));
 };
-var elm$html$Html$div = _VirtualDom_node('div');
 var elm$html$Html$li = _VirtualDom_node('li');
 var elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
 var elm$html$Html$Attributes$style = elm$virtual_dom$VirtualDom$style;
-var author$project$Index$viewImage = function (image) {
-	var imgpath = 'moe/' + image.fn;
+var author$project$Main$viewImage = function (image) {
 	var cssDisplay = image.active ? 'initial' : 'none';
 	return A2(
 		elm$html$Html$li,
@@ -6235,15 +6393,15 @@ var author$project$Index$viewImage = function (image) {
 					]),
 				_List_fromArray(
 					[
-						author$project$Index$aimg(imgpath),
-						author$project$Index$viewInfo(image)
+						author$project$Main$aimg(
+						author$project$Image$imgpath(image)),
+						author$project$Main$viewInfo(image)
 					]))
 			]));
 };
 var elm$html$Html$h1 = _VirtualDom_node('h1');
 var elm$html$Html$ul = _VirtualDom_node('ul');
-var elm$html$Html$Attributes$id = elm$html$Html$Attributes$stringProperty('id');
-var author$project$Index$viewImages = F2(
+var author$project$Main$viewImages = F2(
 	function (_n0, is) {
 		var cname = _n0.a;
 		var lname = _n0.b;
@@ -6269,12 +6427,12 @@ var author$project$Index$viewImages = F2(
 						[
 							elm$html$Html$Attributes$class('img-list')
 						]),
-					A2(elm$core$List$map, author$project$Index$viewImage, is))
+					A2(elm$core$List$map, author$project$Main$viewImage, is))
 				]));
 	});
 var elm$virtual_dom$VirtualDom$lazy2 = _VirtualDom_lazy2;
 var elm$html$Html$Lazy$lazy2 = elm$virtual_dom$VirtualDom$lazy2;
-var author$project$Index$imgRoot = function (ls) {
+var author$project$Main$imgRoot = function (ls) {
 	var isCat = F2(
 		function (cname, x) {
 			return _Utils_eq(
@@ -6298,24 +6456,24 @@ var author$project$Index$imgRoot = function (ls) {
 		_List_fromArray(
 			[
 				A2(
-				author$project$Index$when,
+				author$project$Utils$when,
 				!elm$core$List$isEmpty(ts),
 				A3(
 					elm$html$Html$Lazy$lazy2,
-					author$project$Index$viewImages,
+					author$project$Main$viewImages,
 					_Utils_Tuple2('tan', 'Mascot / tan'),
 					ts)),
 				A2(
-				author$project$Index$when,
+				author$project$Utils$when,
 				!elm$core$List$isEmpty(bs),
 				A3(
 					elm$html$Html$Lazy$lazy2,
-					author$project$Index$viewImages,
+					author$project$Main$viewImages,
 					_Utils_Tuple2('book', 'Anime girls holding haskell books'),
 					bs))
 			]));
 };
-var author$project$Index$root = function (imgs) {
+var author$project$Main$root = function (imgs) {
 	return A2(
 		elm$html$Html$div,
 		_List_fromArray(
@@ -6324,7 +6482,7 @@ var author$project$Index$root = function (imgs) {
 			]),
 		_List_fromArray(
 			[
-				author$project$Index$imgRoot(imgs)
+				author$project$Main$imgRoot(imgs)
 			]));
 };
 var elm$html$Html$input = _VirtualDom_node('input');
@@ -6345,7 +6503,6 @@ var elm$html$Html$Events$alwaysStop = function (x) {
 var elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
 	return {$: 'MayStopPropagation', a: a};
 };
-var elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
 var elm$html$Html$Events$stopPropagationOn = F2(
 	function (event, decoder) {
 		return A2(
@@ -6371,7 +6528,7 @@ var elm$html$Html$Events$onInput = function (tagger) {
 			elm$html$Html$Events$alwaysStop,
 			A2(elm$json$Json$Decode$map, tagger, elm$html$Html$Events$targetValue)));
 };
-var author$project$Index$txtbox = function (msg) {
+var author$project$Main$txtbox = function (msg) {
 	return A2(
 		elm$html$Html$div,
 		_List_fromArray(
@@ -6402,8 +6559,15 @@ var author$project$Index$txtbox = function (msg) {
 					]))
 			]));
 };
-var author$project$Main$Query = function (a) {
+var author$project$Model$Query = function (a) {
 	return {$: 'Query', a: a};
+};
+var author$project$Main$viewList = function (ils) {
+	return _List_fromArray(
+		[
+			author$project$Main$txtbox(author$project$Model$Query),
+			author$project$Main$root(ils.show)
+		]);
 };
 var elm$core$Debug$toString = _Debug_toString;
 var author$project$Main$view = function (model) {
@@ -6424,14 +6588,24 @@ var author$project$Main$view = function (model) {
 			return elm$html$Html$text('...');
 		default:
 			var is = model.a;
-			return A2(
-				elm$html$Html$div,
-				_List_Nil,
-				_List_fromArray(
-					[
-						author$project$Index$txtbox(author$project$Main$Query),
-						author$project$Index$root(is.show)
-					]));
+			var _n1 = is.focus;
+			if (_n1.$ === 'Nothing') {
+				return A2(
+					elm$html$Html$div,
+					_List_Nil,
+					author$project$Main$viewList(is));
+			} else {
+				var i = _n1.a;
+				return A2(
+					elm$html$Html$div,
+					_List_Nil,
+					_Utils_ap(
+						author$project$Main$viewList(is),
+						_List_fromArray(
+							[
+								author$project$Main$viewFocus(i)
+							])));
+			}
 	}
 };
 var elm$browser$Browser$External = function (a) {

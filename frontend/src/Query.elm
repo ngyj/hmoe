@@ -3,12 +3,10 @@ module Query exposing (query,expandTags)
 import Image exposing (Image)
 import String exposing (startsWith)
 
-
 query : String -> List Image -> List Image
 query s = List.filter (match s)
           -- TODO replace by active flag
           -- List.map (\i -> {i | active = match s i})
-
 
 match : String -> Image -> Bool
 match s img = List.any (startsWith s) img.tags

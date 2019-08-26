@@ -12,6 +12,15 @@ type alias Image =
   , active : Bool
   }
 
+imgpath : {a | fn : String } -> String
+imgpath image = "moe/" ++ image.fn
+
+wppath : String -> String
+wppath wpname = "moe/wp/" ++ wpname
+
+thumbnail : String -> String
+thumbnail iname = iname ++ "?thumbnail"
+
 imgSample : List Image
 imgSample = [ { fn ="haskell01.png"
               , cat = Just "tan"
@@ -26,8 +35,14 @@ imgSample = [ { fn ="haskell01.png"
               , wp = ["foobar"]
               , active = True }
             ]
+
+empty : Image
+empty = { fn = "", cat = Nothing, src = Nothing, tags = [], wp = [], active=True}
+
 foo : Image
-foo = { fn = "", cat = Nothing, src = Nothing, tags = [], wp = [], active=True}
+foo = case List.head imgSample of
+          Just x -> x
+          Nothing -> empty
 
 moeDecoder : Decoder (List Image)
 moeDecoder = field "data" (list imgDecoder)

@@ -5,6 +5,8 @@ body {
   color: #fff;
   font-family: 'Roboto', sans-serif;
 }
+
+/* image list */
 ul.img-list {
   list-style-type: none;
   margin: 0;
@@ -54,13 +56,80 @@ a:hover {
   text-decoration-line: none;
 }
 
+/* query box */
 div.query-wrapper {
-    padding-top: 20px;
-    width: 100%;
+  padding-top: 20px;
+  width: 100%;
 }
 #query {
-    display: block;
-    margin: 0 auto;
-    min-width: 200px;
-    width: 50%;
+  display: block;
+  margin: 0 auto;
+  min-width: 200px;
+  width: 50%;
+}
+
+/* image focus (for wp) */
+#img-focus {
+  z-index: 30;
+  background-color: rgba(0,0,0,0.7);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+}
+.if-left {
+  display: flex;
+  align-items: stretch;
+  flex-direction: row;
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+.if-image {
+  flex: 1 0 auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-around;
+  overflow: hidden;
+}
+.if-image a {
+  display: flex;
+  align-items: flex-start;
+  margin: auto;
+  line-height: 0;
+  max-width: 100%;
+}
+.if-image img,
+.if-image video {
+  max-width: 100%;
+  max-height: calc(100vh - 25px);
+  border: none;
+}
+.if-wps {
+  flex: 0 0 150px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: column;
+  text-align: center;
+  background: rgba(0,0,0,.5);
+  border-left: 1px solid #fff;
+}
+.if-wps-img {
+  flex: 0 0 auto;
+  padding: 3px;
+  line-height: 0;
+}
+.if-wps-img img {
+  max-width: 125px;
+  max-height: 125px;
+  height: auto;
+  width: auto;
+}
+.if-wps-head {
+  background: rgba(69, 58, 98, .5);  /* dark */
+  /* background: rgba(93, 78, 132, .5); /* mid */
+  /* background: rgba(143, 78, 139,.5); /* light purple */
 }

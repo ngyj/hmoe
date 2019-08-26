@@ -2,13 +2,14 @@ module Main exposing (..)
 
 import Browser
 import Debug
-import Html exposing (Html, Attribute, text, div, input)
-import Html.Attributes exposing (id, style)
-import Html.Events exposing (onInput)
+import Html exposing (Html, Attribute, text, div, input, a, img, ul, h1, li, span)
+import Html.Attributes exposing (id, style, href, class, src, autofocus, name, placeholder)
+import Html.Events exposing (onInput, onClick)
+import Html.Lazy exposing (lazy2)
 import Http
-import Index exposing (root)
 
-import Image exposing (Image, moeDecoder, foo)
+import Image exposing (Image, moeDecoder, foo, imgpath, wppath, thumbnail)
+import Model exposing (..)
 import Query exposing (query)
 import Utils exposing (..)
 
@@ -19,44 +20,39 @@ main = Browser.element
        , subscriptions = always Sub.none
        }
 
--- model
-type Model = Failure Http.Error
-           | Start
-           | ImList { get : List Image
-                    , show : List Image
-                    , modal : Maybe Image
-                    }
-
 init : () -> (Model, Cmd Msg)
 init _ = (Start, getMoe)
 
-mkImList : List Image -> Model
-mkImList imgs = ImList {get=imgs, show=imgs, modal=Nothing}
-
--- update
-type Msg = GetMoe (Result Http.Error (List Image))
-         | Query String
-         | ShowImage Image
+-- model
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
-  case msg of
-    GetMoe r ->
-      case r of
-        Ok imgs -> let imgs_ = List.map Query.expandTags imgs
-                   in (mkImList imgs_, Cmd.none)
-        Err e -> (Failure e, Cmd.none)
+  let
+    focus i m = { m | focus = Just i}
+    unfocus m = { m | focus = Nothing }
+  in
+    case msg of
+      GetMoe r ->
+        case r of
+          Ok is -> let imgs_ = List.map Query.expandTags is
+                     in (mkImList imgs_, Cmd.none)
+          Err e -> (Failure e, Cmd.none)
 
-    Query "x" -> (model, Cmd.map (always <| ShowImage foo) Cmd.none)
-    Query s ->
-      case model of
-        ImList r -> (ImList <| { r | show = query s r.get }, Cmd.none)
-        _ -> Debug.log "Query: should not happen." (model, Cmd.none)
+      Query s ->
+        case model of
+          ImList r -> (ImList <| { r | show = query s r.get }, Cmd.none)
+          _ -> Debug.log "Query: patmatch error in update." (model, Cmd.none)
 
-    ShowImage i ->
-      case model of
-        ImList r -> (ImList <| { r | modal = Just i}, Cmd.none)
-        _ -> Debug.log "ShowImage: should not happen." (model, Cmd.none)
+      Focus i ->
+        case model of
+          ImList r -> (ImList <| focus i r, Cmd.none)
+          _ -> Debug.log "Focus: patmatch error in update." (model, Cmd.none)
+
+      Unfocus ->
+        case model of
+          ImList r -> (ImList <| unfocus r, Cmd.none)
+          _ -> Debug.log "Unfocus: patmatch error in update." (model, Cmd.none)
+
 
 -- view
 view : Model -> Html Msg
@@ -64,50 +60,122 @@ view model =
     case model of
         Failure e -> div [] [ text "something happened :^)"] |> Debug.log ("getMoe: " ++ Debug.toString e)
         Start -> text "..."
-        ImList is -> div [] [ Index.txtbox Query
-                            , Index.root is.show
-                            ]
+        ImList is -> case is.focus of
+                         Nothing -> div [] (viewList is)
+                         Just i -> div [] (viewList is ++ [viewFocus i])
 
--- modal
-viewModal (ImList is) =
-    case is.modal of
-      Nothing -> div [] [ Index.txtbox Query, Index.root is.show ]
-      Just i -> div maskStyle
-                    [ div modalStyle
-                          [ text "foo" ]
-                    ]
-viewModal _ = div [] []
+viewList : {a | show : List Image} -> List (Html Msg)
+viewList ils = [ txtbox Query, root ils.show ]
 
-
--- @TODO move this in a .css
-maskStyle : List (Attribute msg)
-maskStyle =
-    List.map (uncurry style)
-        [ ("background-color", "rgba(0,0,0,0.3)")
-        , ("position", "fixed")
-        , ("top", "0")
-        , ("left", "0")
-        , ("width", "100%")
-        , ("height", "100%")
+viewFocus : FocusModel -> Html Msg
+viewFocus fm =
+    div [ id "img-focus" , onClick Unfocus]
+        [ focused fm
+        , div [ class "if-wps" ]
+              (sideList fm)
         ]
-modalStyle : List (Attribute msg)
-modalStyle =
-  List.map (uncurry style)
-    [ ("background-color", "rgba(255,255,255,1.0)")
-    , ("position", "absolute")
-    , ("top", "50%")
-    , ("left", "50%")
-    , ("height", "auto")
-    , ("max-height", "80%")
-    , ("width", "700px")
-    , ("max-width", "95%")
-    , ("padding", "10px")
-    , ("border-radius", "3px")
-    , ("box-shadow", "1px 1px 5px rgba(0,0,0,0.5)")
-    , ("transform", "translate(-50%, -50%)")
+
+
+sideList fm =
+  let one attr url = a ([class "if-wps-img"] ++ attr)
+                       [ img [ src url ] [] ]
+  in
+    List.map (one []) fm.init
+    ++ [ one [class "if-wps-head"] fm.head ]
+    ++ List.map (one []) fm.tail
+
+focused fm =
+    div [ class "if-left" ]
+        [ div [ class "if-image" ]
+              [ a [ href fm.head ]
+                  [ img [src fm.head ] [] ]
+              ]
+        ]
+
+txtbox msg =
+  div
+    [class "bloc-query"]
+    [ div
+        [ class "query-wrapper"]
+        [ input
+            [ onInput msg
+            , id "query"
+            , placeholder "filter: book, tan, lyah, hpffp, karen, etc."
+            , name "query"
+            , autofocus True
+            ]
+            []
+        ]
     ]
 
--- api calls
+root imgs = div
+         [ class "root" ]
+         [ imgRoot imgs ]
+
+-- @TODO put 3 cats in the model insted of hardcoding everything
+imgRoot : List Image -> Html Msg
+imgRoot ls =
+  let isCat cname x = Just cname == x.cat
+      ts = List.filter (isCat "tan") ls
+      bs = List.filter (isCat "book") ls
+  in
+    div
+      [ class "bloc-img"]
+      [ when (not <| List.isEmpty ts) <| lazy2 viewImages ("tan", "Mascot / tan") ts
+      , when (not <| List.isEmpty bs) <| lazy2 viewImages ("book", "Anime girls holding haskell books") bs
+      ]
+
+viewImages : (String, String) -> List Image -> Html Msg
+viewImages (cname, lname) is =
+    div
+      [ class (cname++"-box bloc-img-cat"), id cname]
+      [ h1 [] [text lname]
+      , ul
+          [ class "img-list" ]
+          (List.map viewImage is)
+      ]
+
+viewImage : Image -> Html Msg
+viewImage image =
+  let cssDisplay = if image.active then "initial" else "none"
+  in
+    li
+      [ style "display" cssDisplay ]
+      [ div
+          [ class "img-item-box" ]
+          [ aimg <| imgpath image
+          , viewInfo image
+          ]
+      ]
+
+viewInfo : Image -> Html Msg
+viewInfo image =
+  let haswp = List.isEmpty image.wp |> not
+      fmod = case image.wp of
+               [] -> { init= [], tail= [], head= imgpath image }
+               x::xs -> { init= [imgpath image], head= wppath x, tail=xs}
+  in
+    span [] <| List.concat
+      [ case image.src of
+             Just s -> [ a [href s]
+                           [text "source"]
+                       , when haswp (text " - ")
+                       ]
+             Nothing -> []
+      , [ when haswp <|
+            a [ href "#", onClick <| Focus fmod  ]
+              [ text "wp" ]
+        ]
+      ]
+
+aimg : String -> Html msg
+aimg link =
+    a [ href link, class "img-item"]
+      [ img [ src (thumbnail link) ]
+            []
+      ]
+
+-- actions
 getMoe = Http.get
   { url = "/moe"
   , expect = Http.expectJson GetMoe moeDecoder

@@ -2,6 +2,16 @@ module Utils exposing (..)
 
 import Html exposing (Html, text)
 
+isJust : Maybe a -> Bool
+isJust m = case m of
+             Just _ -> True
+             Nothing -> False
+
+isNothing : Maybe a -> Bool
+isNothing m = case m of
+                Just _ -> False
+                Nothing -> True
+
 curry : ((a, b) -> c) -> a -> b -> c
 curry f a b = f (a,b)
 

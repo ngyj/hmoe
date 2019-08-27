@@ -1,11 +1,14 @@
 module Main exposing (..)
 
+import Array exposing (Array)
 import Browser
+import Browser.Events as E
 import Debug
 import Html exposing (Html, Attribute, text, div, input, a, img, ul, h1, li, span)
 import Html.Attributes exposing (id, style, href, class, src, autofocus, name, placeholder)
 import Html.Events exposing (onInput, onClick)
 import Html.Lazy exposing (lazy2)
+import Json.Decode as D
 import Http
 
 import Image exposing (Image, moeDecoder, foo, imgpath, wppath, thumbnail)
@@ -17,19 +20,42 @@ main = Browser.element
        { init = init
        , update = update
        , view = view
-       , subscriptions = always Sub.none
+       , subscriptions = subscriptions
        }
+
+subscriptions : Model -> Sub Msg
+subscriptions model = case model of
+                        ImList _ -> E.onKeyDown keyHandler
+                        _ -> Sub.none
+
+keyHandler : D.Decoder Msg
+keyHandler =
+  let
+    h k = case k of
+           "Escape" -> Unfocus
+           "ArrowRight" -> KeyInput Right
+           "ArrowLeft" -> KeyInput Left
+           _ -> Debug.log k Nop
+    keyDecoder = D.field "key" D.string
+  in
+    D.map h keyDecoder
 
 init : () -> (Model, Cmd Msg)
 init _ = (Start, getMoe)
 
 -- model
-
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   let
     focus i m = { m | focus = Just i}
     unfocus m = { m | focus = Nothing }
+    isFocus m = case m of
+      ImList r -> isJust r.focus
+      _ -> False
+    overCurrentFocus m f = let g x = { x | current = modBy (Array.length x.data) <| f x.current}
+                           in case m of
+                                ImList r -> ImList { r | focus = Maybe.map g r.focus }
+                                _ -> m
   in
     case msg of
       GetMoe r ->
@@ -52,6 +78,11 @@ update msg model =
         case model of
           ImList r -> (ImList <| unfocus r, Cmd.none)
           _ -> Debug.log "Unfocus: patmatch error in update." (model, Cmd.none)
+      Nop -> (model, Cmd.none)
+
+      KeyInput Right -> (overCurrentFocus model <| (+) 1, Cmd.none)
+      KeyInput Left -> (overCurrentFocus model <| (-) 1, Cmd.none)
+      -- _ -> Debug.log "update: unhandled patmatch" (model, Cmd.none)
 
 
 -- view
@@ -61,15 +92,15 @@ view model =
         Failure e -> div [] [ text "something happened :^)"] |> Debug.log ("getMoe: " ++ Debug.toString e)
         Start -> text "..."
         ImList is -> case is.focus of
-                         Nothing -> div [] (viewList is)
-                         Just i -> div [] (viewList is ++ [viewFocus i])
+                       Nothing -> div [id "main"] (viewList is)
+                       Just i -> div [id "main"] (viewList is ++ [viewFocus i])
 
 viewList : {a | show : List Image} -> List (Html Msg)
 viewList ils = [ txtbox Query, root ils.show ]
 
 viewFocus : FocusModel -> Html Msg
 viewFocus fm =
-    div [ id "img-focus" , onClick Unfocus]
+    div [ id "img-focus" ]
         [ focused fm
         , div [ class "if-wps" ]
               (sideList fm)
@@ -77,18 +108,20 @@ viewFocus fm =
 
 
 sideList fm =
-  let one attr url = a ([class "if-wps-img"] ++ attr)
-                       [ img [ src url ] [] ]
+  let focusOn i = Focus {fm | current = i }
+      viewThumb i url = a [ (id << (++) "gi" << String.fromInt) i
+                          , class "if-wps-img"
+                          , if (i == fm.current) then (class "if-wps-head") else style "" ""
+                          , onClick (focusOn i)]
+                          [ img [ src url ] [] ]
   in
-    List.map (one []) fm.init
-    ++ [ one [class "if-wps-head"] fm.head ]
-    ++ List.map (one []) fm.tail
+    Array.toList <| Array.indexedMap viewThumb fm.data
 
-focused fm =
-    div [ class "if-left" ]
+focused fm = let current = Maybe.withDefault "/moe/static/404.png" <| Array.get fm.current fm.data in
+    div [ class "if-left" , onClick Unfocus ]
         [ div [ class "if-image" ]
-              [ a [ href fm.head ]
-                  [ img [src fm.head ] [] ]
+              [ a [ href current ]
+                  [ img [src current ] [] ]
               ]
         ]
 
@@ -112,7 +145,7 @@ root imgs = div
          [ class "root" ]
          [ imgRoot imgs ]
 
--- @TODO put 3 cats in the model insted of hardcoding everything
+-- @TODO put 3 cats in the model instead of hardcoding everything
 imgRoot : List Image -> Html Msg
 imgRoot ls =
   let isCat cname x = Just cname == x.cat
@@ -151,9 +184,9 @@ viewImage image =
 viewInfo : Image -> Html Msg
 viewInfo image =
   let haswp = List.isEmpty image.wp |> not
-      fmod = case image.wp of
-               [] -> { init= [], tail= [], head= imgpath image }
-               x::xs -> { init= [imgpath image], head= wppath x, tail=xs}
+      fmod = { data = Array.fromList (imgpath image :: List.map wppath image.wp)
+             , current = if List.isEmpty image.wp then 0 else 1
+             }
   in
     span [] <| List.concat
       [ case image.src of
@@ -163,7 +196,7 @@ viewInfo image =
                        ]
              Nothing -> []
       , [ when haswp <|
-            a [ href "#", onClick <| Focus fmod  ]
+            a [ onClick <| Focus fmod , class "link"]
               [ text "wp" ]
         ]
       ]

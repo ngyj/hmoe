@@ -46,13 +46,13 @@ ul.img-list > li a.img-item {
   display: table;
 }
 
-a:visited, a:hover, a:link, a:active {
+a:visited, a:hover, a:link, a:active, .link {
   color: #fff;
 }
-a:visited, a:link, a:active {
+a:visited, a:link, a:active, .link {
   text-decoration-line: underline;
 }
-a:hover {
+a:hover, .link:hover {
   text-decoration-line: none;
 }
 
@@ -129,7 +129,7 @@ div.query-wrapper {
   width: auto;
 }
 .if-wps-head {
-  background: rgba(69, 58, 98, .5);  /* dark */
+  /* background: rgba(69, 58, 98, .5);  /* dark */
   /* background: rgba(93, 78, 132, .5); /* mid */
-  /* background: rgba(143, 78, 139,.5); /* light purple */
+  background: rgba(143, 78, 139,.8); /* light purple */
 }

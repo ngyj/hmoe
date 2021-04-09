@@ -114,12 +114,12 @@
   src= https://danbooru.donmai.us/posts/4110578
   tags= hololive,hololive_en,ninomae_ina'nis,ina,artist:saise_chisa
 
-[haskell26.jpg]
+[haskell26.png]
   cat= book
   src= https://twitter.com/i/web/status/1327567045244854272
   tags= hololive,hololive_en,ninomae_ina'nis,ina,artist:kaerunoko
 
-[Procedural_Haskell01.png]
+[Procedural_Haskell01.jpg]
   cat= book
   src= https://twitter.com/kakkun61/status/1352600533626839043
   tags= love_live!,nakagawa_nana,yuuki_setsuna,procedural_haskell,artist:zeromomo

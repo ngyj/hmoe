@@ -29,39 +29,38 @@ newtype PFilename = Fn Text
                   deriving (Eq, Show)
 
 data PField = Cat Text
-            | Src (Either Text PSrcToken)
+            | Src (Either Text PSrc)
             | Tag [Text]
             | Wp Bool
             deriving (Eq, Show)
 
 -- Currently the required tokens are the same as the SrcServ types
-type PSrcToken = SrcServ
+type PSrc = SrcServ
 
--- TODO log error if parseImgs failed
+-- @TODO log error if parseImgs failed
 -- | parse text from File
-parseImages :: Trie Text -> Text -> [Img]
-parseImages wps = map lookupWps . parseI
+parseImages :: Trie Text -> Text -> Either String [Img]
+parseImages wps txt =  map lookupWps <$> parseI txt
   where
     lookupWps i@Img{imFn=f} = i{imWp = prefixes (encodeUtf8 $ dropExt f) wps}
-    parseI = fromRight [] . parseOnly imageListP
+    parseI = parseOnly imageListP
 
 imageListP:: Parser [Img]
 imageListP = many' imageP
 
--- TODO log when overwriting field, report line numbers?
+-- @TODO log when overwriting field, report line numbers?
 -- SPEED use something other than linked lists for the fields?
 -- | the @Img@ type builder
 mkImg :: Text -> [PField] -> Img
 mkImg fn = foldl' addField defaultImg
   where
     defaultImg = Img fn Nothing Nothing [] []
-    url = T.pack Cfg.host <> "moe/" <> fn
     escape = Uri.encodeText
 
     addField acc field = case field of
       Cat s -> acc{imCat=Just s}
       Src (Left s) -> acc{imSrc=Just s}
-      Src (Right tok) -> acc{imSrc=Just (Cfg.srcServUrl tok <> escape fn)}
+      Src (Right src) -> acc{imSrc=Just (Cfg.srcServUrl src)}
       Tag s -> acc{imTag=s}
       Wp _ -> acc
 
@@ -84,12 +83,16 @@ fnP = do skipHSpace
 srcP :: Parser PField
 srcP = Src
        <$> kvPairP (string "source" <|> string "src")
-                   (  Right <$> (try tokens <* endOfField)
+                   ( Right <$> (try tokens <* endOfField)
                    <|> Left <$> (takeTill isEndOfWord <* endOfField))
        <?> "source"
   where
-    tokens = Trace <$ string "trace" <* optional (string ".moe")
-               <|> Iqdb <$ string "iqdb.org"
+    srcName :: Parser Text
+    srcName = char ':' *> takeTill isEndOfWord
+
+    tokens :: Parser PSrc
+    tokens = do { string "trace"; optional (string ".moe"); Trace <$> srcName }
+             <|> do { string "iqdb";  Iqdb <$> srcName }
 
 catP :: Parser PField
 catP = Cat . strip

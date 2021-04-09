@@ -52,6 +52,7 @@ mkThumbnail fn | extension [".png"] = go (loadPngFile, savePngFile)
                       >>= save (inThumbDir fn)
                       <* traceShowM ("mkThumbnail: " <> fn)
 
-inImgDir, inThumbDir :: ToString a => a -> String
+inImgDir, inThumbDir, inSrcDir :: ToString a => a -> String
 inImgDir = ("static/img/" ++) . toString
 inThumbDir = ("static/img/thumb/" ++) . toString
+inSrcDir = ("static/img/src/" ++ ) . toString

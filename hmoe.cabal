@@ -1,7 +1,7 @@
 Name:                hmoe
-Version:             0.1
-Synopsis:            haskell.moe
-Description:         haskell.moe - Moe * Haskell
+Version:             0.2
+Synopsis:            hmoe
+Description:         hmoe = Moe * Haskell
 License:             BSD3
 Author:              ngyj
 Maintainer:          ngyj@cinnabar.fr
@@ -29,19 +29,19 @@ library
                  , Moe.Utils
                  , Config
 
-  Build-depends: base                      >= 4.4     && < 5
+  Build-depends: base                      >= 4.4     && < 4.14
                , aeson
                , attoparsec
                , bytestring                >= 0.9.1   && < 0.11
                , containers
                , directory
                , gd
-               , lens                      >= 3.7.6   && < 4.18
-               , mtl                       >= 2       && < 2.3
-               , snap                      >= 1.0     && < 1.2
-               , snap-core                 >= 1.0     && < 1.1
-               , snap-loader-static        >= 1.0     && < 1.1
-               , snap-server               >= 1.0     && < 1.2
+               , lens
+               , mtl
+               , snap
+               , snap-core
+               , snap-loader-static
+               , snap-server
                , text                      >= 0.11    && < 1.3
                , bytestring-trie
                , uri-encode
@@ -80,7 +80,7 @@ executable hmoe
   else
     if impl(ghc >= 6.12.0)
       ghc-options: -threaded -Wall -fwarn-tabs -funbox-strict-fields -O2
-                   -fno-warn-orphans -fno-warn-unused-do-bind
+                   -fno-warn-orphans -fno-warn-unused-do-bind -static
     else
       ghc-options: -threaded -Wall -fwarn-tabs -funbox-strict-fields -O2
-                   -fno-warn-orphans
+                   -fno-warn-orphans -static

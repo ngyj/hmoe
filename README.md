@@ -10,6 +10,4 @@ Collection of haskell-related moe pics.
 * priority to pixiv, then danbooru, then twitter.
 
 # TODO
-* multi wp support (api call?)
 * tag synonyms
-* trace.moe sources

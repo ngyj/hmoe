@@ -3,12 +3,12 @@ module Config where
 
 import Data.String (IsString)
 
--- | hostname of website there must be a better way, right?
+-- | hostname of website
+-- @IMPROVEMENT feels like a hack, maybe just query the ip on the system?
 host :: String
-host = "https://haskell.moe/"
+host = "https://" <> ['h', 'a', 's', 'k', 'e', 'l', 'l'] <> ".moe/"
 
 
--- REFACTOR isn't making yet another type overkill?
 -- | source services
 data SrcServ = Trace | Iqdb deriving (Eq, Show)
 

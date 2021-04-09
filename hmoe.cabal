@@ -1,7 +1,7 @@
 Name:                hmoe
 Version:             0.1
-Synopsis:            haskell.moe
-Description:         haskell.moe - Moe * Haskell
+Synopsis:            hmoe
+Description:         hmoe = Moe * Haskell
 License:             BSD3
 Author:              ngyj
 Maintainer:          ngyj@cinnabar.fr

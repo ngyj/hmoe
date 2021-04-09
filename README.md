@@ -1,6 +1,8 @@
 # hmoe
 Collection of haskell-related moe pics.
 
+Current frontend is in branch `frontend/elm`.
+
 ## image guidelines
 * pics belong in `static/img/`
 * wallpapers belong in `static/img/wp`

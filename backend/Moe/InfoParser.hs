@@ -7,6 +7,7 @@ module Moe.InfoParser ( module Moe.InfoParser
 
 import           Prelude hiding (takeWhile)
 
+import           Control.Monad (foldM)
 import           Control.Applicative (liftA2, (<|>), optional)
 import           Data.ByteString (ByteString)
 import           Data.Either (fromRight)
@@ -18,6 +19,7 @@ import           Debug.Trace (trace)
 
 import           Data.Attoparsec.Text
 import qualified Network.URI.Encode as Uri
+import           Control.Monad.Trans.Writer.Strict (Writer, writer, tell, runWriter)
 
 import           Moe.Img
 import           Moe.Utils (dropExt, Trie, prefixes)
@@ -49,7 +51,7 @@ type PSrc = SrcServ
 -- TODO log error if parseImgs failed
 -- | parse text from File
 parseImages :: Trie Text -> Text -> Either String (Warnings, [Img])
-parseImages wps txt =  (\case (!ws, is) -> (ws, map lookupWps is)) <$> parseI txt
+parseImages wps txt =  (\case (!ws, !is) -> (ws, map lookupWps is)) <$> parseI txt
   where
     lookupWps i@Img{imFn=f} = i{imWp = prefixes (encodeUtf8 $ dropExt f) wps}
     parseI = parseOnly imageListP
@@ -62,18 +64,22 @@ imageListP = sequence <$> many' imageP
 -- FIXME this is just Writer
 -- | the @Img@ type builder
 mkImg :: Text -> [PField] -> (Warnings, Img)
-mkImg fn = foldl' addField ([], defaultImg)
+mkImg fn = swap . runWriter . foldM addField defaultImg
   where
+    swap (a, b) = (b, a)
     defaultImg = Img fn Nothing Nothing [] []
     escape = Uri.encodeText
 
-    addField (ws, img) field = case field of
-      Cat s           -> (ws, img{imCat=Just s})
-      Src (Left s)    -> (ws, img{imSrc=Just s})
-      Src (Right src) -> (ws, img{imSrc=Just (escape $ Cfg.srcServUrl src)})
-      Tag s           -> (ws, img{imTag=s})
-      Wp _            -> (ws, img)  -- FIXME
-      Unknown (k, _)  -> seq k (ws <> [encodeUtf8 k], img)
+    addField :: (Img -> PField -> Writer [ByteString] Img)
+    addField img field = 
+      case field of
+        Cat s           -> pure img{imCat=Just s}
+        Src (Left s)    -> pure img{imSrc=Just s}
+        Src (Right src) -> pure img{imSrc=Just (Cfg.srcServUrl src)}
+        Tag s           -> pure img{imTag=s}
+        Wp _            -> pure img  -- FIXME
+        Unknown (k, _)  -> let w = "unknown field: `" <> encodeUtf8 k <> "` in [" <> encodeUtf8 fn <> "]."
+                           in seq w (tell [w]) >> pure img
 
 -- | the one image Parser
 imageP :: Parser (Warnings, Img)

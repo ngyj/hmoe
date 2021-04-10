@@ -37,6 +37,7 @@ library
                , directory
                , gd
                , lens
+               , transformers
                , mtl
                , snap
                , snap-core

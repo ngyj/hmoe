@@ -44,7 +44,7 @@ mkThumbnail :: ByteString -> IO ()
 mkThumbnail fn | extension [".png"] = go (loadPngFile, savePngFile)
                | extension [".jpg", ".jpeg"] = go (loadJpegFile, saveJpegFile (-1))
                | extension [".gif"] = go (loadGifFile, saveGifFile)
-               | otherwise = return () -- FIXME log this (?)
+               | otherwise = return () -- @FIXME log this (?)
   where
     extension = any (`isSuffixOf` fn)
     go (load, save) = load (inImgDir fn)

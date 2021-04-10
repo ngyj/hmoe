@@ -39,7 +39,7 @@ mkTrie f = fromList . map (\s -> (B.pack s, f s))
 prefixes :: ByteString -> Trie a -> [a]
 prefixes s = elems . submap s
 
--- FIXME match on list of known extensions?
+-- @FIXME match on list of known extensions?
 -- | get the filename without the extension
 dropExt :: Text -> Text
 dropExt s = case T.breakOnEnd "." s of

@@ -48,8 +48,9 @@ rOK = modifyResponse $ setResponseCode 200
 rImgList :: Handler a Moe ()
 rImgList = do modifyResponse $ setHeader "content-type" "application/json"
               liftIO imgs >>= \case Left e -> logError (fromString e)
-                                    Right is -> (writeLBS . encode . OK) is
+                                    Right (ws, is) -> mapM logWarning ws >> (writeLBS . encode . OK) is
                 where
+                  logWarning = logError . ("Warning: " <>)
                   wps = mkTrie T.pack <$> listDirectory (inImgDir @String "wp")
                   -- pass the walpaper with the file
                   imgs = parseImages <$> wps <*> T.readFile "static/img_info.txt"
